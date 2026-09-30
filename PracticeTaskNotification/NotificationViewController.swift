@@ -14,10 +14,9 @@ class NotificationViewController:
     UIViewController,
     UNNotificationContentExtension {
 
-    @IBOutlet weak var headingLabel: UILabel!
     @IBOutlet weak var taskTitleLabel: UILabel!
     @IBOutlet weak var lessonLabel: UILabel!
-    @IBOutlet weak var detailsLabel: UILabel!
+    @IBOutlet weak var dueDateLabel: UILabel!
 
 
     override func viewDidLoad() {
@@ -37,10 +36,6 @@ class NotificationViewController:
             userInfo["taskTitle"] as? String
             ?? "Practice Task"
 
-        let taskDescription =
-            userInfo["taskDescription"] as? String
-            ?? ""
-
         let lessonTitle =
             userInfo["lessonTitle"] as? String
             ?? "Lesson"
@@ -55,9 +50,11 @@ class NotificationViewController:
                     dueTimestamp
             )
 
-
-        headingLabel.text =
-            "Practice Due Soon"
+        let formattedDueDate =
+            dueDate.formatted(
+                date: .abbreviated,
+                time: .shortened
+            )
 
         taskTitleLabel.text =
             taskTitle
@@ -65,21 +62,7 @@ class NotificationViewController:
         lessonLabel.text =
             lessonTitle
 
-        let formattedDueDate =
-            dueDate.formatted(
-                date: .abbreviated,
-                time: .shortened
-            )
-
-        if taskDescription.isEmpty {
-
-            detailsLabel.text =
-                "Due \(formattedDueDate)"
-
-        } else {
-
-            detailsLabel.text =
-                "Due \(formattedDueDate)\n\(taskDescription)"
-        }
+        dueDateLabel.text =
+            "Due \(formattedDueDate)"
     }
 }

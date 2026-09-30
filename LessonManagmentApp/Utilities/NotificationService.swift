@@ -39,7 +39,6 @@ enum NotificationService {
     // schedules a reminder for an upcoming practice task due date
     static func schedulePracticeTaskDue(
         title: String,
-        description: String,
         dueDate: Date,
         lessonTitle: String
     ) {
@@ -61,7 +60,6 @@ enum NotificationService {
 
         content.userInfo = [
             "taskTitle": title,
-            "taskDescription": description,
             "lessonTitle": lessonTitle,
             "dueDate": dueDate.timeIntervalSince1970
         ]
