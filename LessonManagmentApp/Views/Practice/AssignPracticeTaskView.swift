@@ -315,7 +315,6 @@ struct AssignPracticeTaskView: View {
                 NotificationService
                     .schedulePracticeTaskDue(
                         title: title,
-                        description: taskDescription,
                         dueDate: dueDate,
                         lessonTitle: lesson.title
                     )

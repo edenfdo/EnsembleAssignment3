@@ -65,33 +65,41 @@ enum NotificationService {
         ]
 
         // sends the reminder one hour before the task is due
-        let reminderDate =
-            dueDate.addingTimeInterval(
-                -60 * 60
-            )
+//        let reminderDate =
+//            dueDate.addingTimeInterval(
+//                -60 * 60
+//            )
 
-        guard reminderDate > Date() else {
-            return
-        }
+//        guard reminderDate > Date() else {
+//            return
+//        }
+//
+//        let dateComponents =
+//            Calendar.current.dateComponents(
+//                [
+//                    .year,
+//                    .month,
+//                    .day,
+//                    .hour,
+//                    .minute
+//                ],
+//                from: reminderDate
+//            )
+//
+//        let trigger =
+//            UNCalendarNotificationTrigger(
+//                dateMatching: dateComponents,
+//                repeats: false
+//            )
 
-        let dateComponents =
-            Calendar.current.dateComponents(
-                [
-                    .year,
-                    .month,
-                    .day,
-                    .hour,
-                    .minute
-                ],
-                from: reminderDate
-            )
-
+        
+        // sends the notification after 10 seconds for testing
         let trigger =
-            UNCalendarNotificationTrigger(
-                dateMatching: dateComponents,
+            UNTimeIntervalNotificationTrigger(
+                timeInterval: 10,
                 repeats: false
             )
-
+        
         let request =
             UNNotificationRequest(
                 identifier: UUID().uuidString,
