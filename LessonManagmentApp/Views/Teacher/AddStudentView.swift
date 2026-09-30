@@ -125,20 +125,47 @@ struct AddStudentView: View {
         }
     }
     
-
     // creates the student account using the entered details and closes the form
     private func addStudent() {
-        let wasAdded = viewModel.addStudent(
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password
-        )
 
-        if wasAdded {
+        do {
+
+            try viewModel.addStudent(
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password
+            )
+
             dismiss()
-        } else {
+
+        } catch AddStudentError.emailAlreadyExists {
+
             showDuplicateEmailAlert = true
+
+        } catch AddStudentError.missingName {
+
+            print(
+                "Student name is required."
+            )
+
+        } catch AddStudentError.invalidEmail {
+
+            print(
+                "A valid email address is required."
+            )
+
+        } catch AddStudentError.missingPassword {
+
+            print(
+                "Password is required."
+            )
+
+        } catch {
+
+            print(
+                "Failed to add student: \(error)"
+            )
         }
     }
 }

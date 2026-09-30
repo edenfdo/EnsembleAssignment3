@@ -14,15 +14,22 @@ final class SettingsViewModel: ObservableObject {
     @Published var successMessage = ""
 
     private let userRepository: UserRepository
+    
+    private let changePasswordUseCase: ChangePasswordUseCase
 
     // creates the view model with access to stored users
     init(
         userRepository: UserRepository
     ) {
         self.userRepository = userRepository
+        
+        self.changePasswordUseCase =
+                ChangePasswordUseCase(
+                    userRepository: userRepository
+                )
     }
 
-    // validates and updates the user's password
+    // changes the user's password through the change password use case
     func changePassword(
         user: User,
         currentPassword: String,
@@ -33,48 +40,47 @@ final class SettingsViewModel: ObservableObject {
         errorMessage = ""
         successMessage = ""
 
-        // checks that the current password is correct
-        guard PasswordHasher.verify(
-            password: currentPassword,
-            hash: user.passwordHash
-        ) else {
+        do {
+
+            try changePasswordUseCase.execute(
+                user: user,
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+                confirmPassword: confirmPassword
+            )
+
+            successMessage =
+                "Password changed successfully."
+
+            return true
+
+        } catch ChangePasswordError.incorrectCurrentPassword {
 
             errorMessage =
                 "Current password is incorrect."
 
             return false
-        }
 
-        // ensures the new password meets the minimum length
-        guard newPassword.count >= 6 else {
+        } catch ChangePasswordError.passwordTooShort {
 
             errorMessage =
                 "New password must be at least 6 characters."
 
             return false
-        }
 
-        // ensures both new password entries match
-        guard newPassword == confirmPassword else {
+        } catch ChangePasswordError.passwordsDoNotMatch {
 
             errorMessage =
                 "New passwords do not match."
 
             return false
+
+        } catch {
+
+            errorMessage =
+                "Unable to change password."
+
+            return false
         }
-
-        user.passwordHash =
-            PasswordHasher.hash(
-                newPassword
-            )
-
-        userRepository.updateUser(
-            user
-        )
-
-        successMessage =
-            "Password changed successfully."
-
-        return true
     }
 }

@@ -13,12 +13,19 @@ final class TeacherStudentsViewModel: ObservableObject {
     @Published var students: [User] = []
 
     private let userRepository: UserRepository
+    
+    private let addStudentUseCase: AddStudentUseCase
 
     // creates the view model with access to stored users
     init(
         userRepository: UserRepository
     ) {
         self.userRepository = userRepository
+        
+        self.addStudentUseCase =
+                AddStudentUseCase(
+                    userRepository: userRepository
+                )
     }
 
     // loads all students from the user repository
@@ -28,43 +35,22 @@ final class TeacherStudentsViewModel: ObservableObject {
             userRepository.getStudents()
     }
 
-    // creates a new student account and saves it to the user repository
+    // creates a student account through the add student use case
     func addStudent(
         firstName: String,
         lastName: String,
         email: String,
         password: String
-    ) -> Bool {
+    ) throws {
 
-        let normalizedEmail = email
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-
-        let emailAlreadyExists = userRepository
-            .getAllUsers()
-            .contains {
-                $0.normalizedEmail == normalizedEmail
-            }
-
-        guard !emailAlreadyExists else {
-            return false
-        }
-        
-        // combines the first and last name and removes extra spaces
-        let fullName = "\(firstName) \(lastName)"
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        let student = User(
-            name: fullName,
+        try addStudentUseCase.execute(
+            firstName: firstName,
+            lastName: lastName,
             email: email,
-            password: password,
-            role: .student
+            password: password
         )
 
-        userRepository.addUser(student)
         loadStudents()
-
-        return true
     }
     
 }
