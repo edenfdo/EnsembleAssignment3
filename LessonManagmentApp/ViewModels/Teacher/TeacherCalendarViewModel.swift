@@ -17,6 +17,7 @@ final class TeacherCalendarViewModel: ObservableObject {
     @Published var lessons: [Lesson] = []
     @Published var students: [User] = []
 
+
     private let lessonRepository: LessonRepository
     private let userRepository: UserRepository
     
@@ -75,6 +76,36 @@ final class TeacherCalendarViewModel: ObservableObject {
                 .getResources(
                     forTeacherID: teacherID
                 )
+        
+        updateWidgetData()
+    }
+    
+    // updates the shared widget with the teacher's lessons
+    private func updateWidgetData() {
+
+        let widgetLessons =
+            lessons.map { lesson in
+
+                let studentName =
+                    students.first {
+                        $0.id == lesson.studentID
+                    }?.name
+                    ?? "Student"
+
+                return WidgetLessonData(
+                    id: lesson.id,
+                    title: lesson.title,
+                    date: lesson.date,
+                    durationMinutes: lesson.durationMinutes,
+                    personName: studentName,
+                    location: lesson.location
+                )
+            }
+
+        WidgetDataService.save(
+            role: "teacher",
+            lessons: widgetLessons
+        )
     }
 
     // schedules one or more lessons through the scheduling use case

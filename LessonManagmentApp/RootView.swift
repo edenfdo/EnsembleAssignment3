@@ -84,7 +84,9 @@ struct RootView: View {
                 ) { user in
                     
                     viewModel.login(
-                        user: user
+                        user: user,
+                        userRepository: userRepository,
+                        lessonRepository: lessonRepository
                     )
                 }
             }

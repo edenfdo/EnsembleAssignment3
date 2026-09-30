@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D81E228A306D0E8F005DB680 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D81E2289306D0E8E005DB680 /* UserNotifications.framework */; };
+		D81E228C306D0E8F005DB680 /* UserNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D81E228B306D0E8F005DB680 /* UserNotificationsUI.framework */; };
+		D81E2296306D0E8F005DB680 /* PracticeTaskNotification.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D81E2288306D0E8E005DB680 /* PracticeTaskNotification.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D85FC1463068F4CC00676999 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1453068F4CC00676999 /* WidgetKit.framework */; };
 		D85FC1483068F4CC00676999 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1473068F4CC00676999 /* SwiftUI.framework */; };
 		D85FC1533068F4CE00676999 /* LessonWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -14,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D81E2294306D0E8F005DB680 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D85AF0EE3043BC810094EBB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D81E2287306D0E8E005DB680;
+			remoteInfo = PracticeTaskNotification;
+		};
 		D85FC1513068F4CE00676999 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D85AF0EE3043BC810094EBB8 /* Project object */;
@@ -38,6 +48,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				D85FC1533068F4CE00676999 /* LessonWidgetExtension.appex in Embed Foundation Extensions */,
+				D81E2296306D0E8F005DB680 /* PracticeTaskNotification.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,6 +56,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D81E2283306D0C42005DB680 /* LessonWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LessonWidgetExtension.entitlements; sourceTree = "<group>"; };
+		D81E2288306D0E8E005DB680 /* PracticeTaskNotification.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PracticeTaskNotification.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D81E2289306D0E8E005DB680 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		D81E228B306D0E8F005DB680 /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
 		D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LessonManagmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LessonWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D85FC1453068F4CC00676999 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -54,6 +69,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D81E2297306D0E8F005DB680 /* Exceptions for "PracticeTaskNotification" folder in "PracticeTaskNotification" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D81E2287306D0E8E005DB680 /* PracticeTaskNotification */;
+		};
+		D81E236B306D297D005DB680 /* Exceptions for "LessonManagmentApp" folder in "LessonWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Shared/WidgetLessonData.swift,
+			);
+			target = D85FC1433068F4CC00676999 /* LessonWidgetExtension */;
+		};
 		D85FC1573068F4CE00676999 /* Exceptions for "LessonWidget" folder in "LessonWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -64,8 +93,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		D81E228D306D0E8F005DB680 /* PracticeTaskNotification */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D81E2297306D0E8F005DB680 /* Exceptions for "PracticeTaskNotification" folder in "PracticeTaskNotification" target */,
+			);
+			path = PracticeTaskNotification;
+			sourceTree = "<group>";
+		};
 		D85AF0F83043BC810094EBB8 /* LessonManagmentApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D81E236B306D297D005DB680 /* Exceptions for "LessonManagmentApp" folder in "LessonWidgetExtension" target */,
+			);
 			path = LessonManagmentApp;
 			sourceTree = "<group>";
 		};
@@ -85,6 +125,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D81E2285306D0E8E005DB680 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D81E228C306D0E8F005DB680 /* UserNotificationsUI.framework in Frameworks */,
+				D81E228A306D0E8F005DB680 /* UserNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D85AF0F33043BC810094EBB8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,10 +164,12 @@
 		D85AF0ED3043BC810094EBB8 = {
 			isa = PBXGroup;
 			children = (
+				D81E2283306D0C42005DB680 /* LessonWidgetExtension.entitlements */,
 				D8A5BCB6306CB73000E9D8CA /* LessonManagmentApp.xctestplan */,
 				D85AF0F83043BC810094EBB8 /* LessonManagmentApp */,
 				D869222730566610009E6816 /* LessonManagmentAppTests */,
 				D85FC1493068F4CC00676999 /* LessonWidget */,
+				D81E228D306D0E8F005DB680 /* PracticeTaskNotification */,
 				D8E2C951305297AB00E2D679 /* Frameworks */,
 				D85AF0F73043BC810094EBB8 /* Products */,
 			);
@@ -130,6 +181,7 @@
 				D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */,
 				D86922263056660F009E6816 /* LessonManagmentAppTests.xctest */,
 				D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */,
+				D81E2288306D0E8E005DB680 /* PracticeTaskNotification.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,6 +191,8 @@
 			children = (
 				D85FC1453068F4CC00676999 /* WidgetKit.framework */,
 				D85FC1473068F4CC00676999 /* SwiftUI.framework */,
+				D81E2289306D0E8E005DB680 /* UserNotifications.framework */,
+				D81E228B306D0E8F005DB680 /* UserNotificationsUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -146,6 +200,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D81E2287306D0E8E005DB680 /* PracticeTaskNotification */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D81E2298306D0E8F005DB680 /* Build configuration list for PBXNativeTarget "PracticeTaskNotification" */;
+			buildPhases = (
+				D81E2284306D0E8E005DB680 /* Sources */,
+				D81E2285306D0E8E005DB680 /* Frameworks */,
+				D81E2286306D0E8E005DB680 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D81E228D306D0E8F005DB680 /* PracticeTaskNotification */,
+			);
+			name = PracticeTaskNotification;
+			packageProductDependencies = (
+			);
+			productName = PracticeTaskNotification;
+			productReference = D81E2288306D0E8E005DB680 /* PracticeTaskNotification.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D85AF0F53043BC810094EBB8 /* LessonManagmentApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D85AF1013043BC820094EBB8 /* Build configuration list for PBXNativeTarget "LessonManagmentApp" */;
@@ -159,6 +235,7 @@
 			);
 			dependencies = (
 				D85FC1523068F4CE00676999 /* PBXTargetDependency */,
+				D81E2295306D0E8F005DB680 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D85AF0F83043BC810094EBB8 /* LessonManagmentApp */,
@@ -226,6 +303,9 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					D81E2287306D0E8E005DB680 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					D85AF0F53043BC810094EBB8 = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -258,11 +338,19 @@
 				D85AF0F53043BC810094EBB8 /* LessonManagmentApp */,
 				D86922253056660F009E6816 /* LessonManagmentAppTests */,
 				D85FC1433068F4CC00676999 /* LessonWidgetExtension */,
+				D81E2287306D0E8E005DB680 /* PracticeTaskNotification */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		D81E2286306D0E8E005DB680 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D85AF0F43043BC810094EBB8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -287,6 +375,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D81E2284306D0E8E005DB680 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D85AF0F23043BC810094EBB8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -311,6 +406,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D81E2295306D0E8F005DB680 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D81E2287306D0E8E005DB680 /* PracticeTaskNotification */;
+			targetProxy = D81E2294306D0E8F005DB680 /* PBXContainerItemProxy */;
+		};
 		D85FC1523068F4CE00676999 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D85FC1433068F4CC00676999 /* LessonWidgetExtension */;
@@ -324,6 +424,62 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		D81E2299306D0E8F005DB680 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PracticeTaskNotification/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PracticeTaskNotification;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edenfdo.LessonManagmentApp.PracticeTaskNotification;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D81E229A306D0E8F005DB680 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PracticeTaskNotification/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PracticeTaskNotification;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edenfdo.LessonManagmentApp.PracticeTaskNotification;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		D85AF0FF3043BC820094EBB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -451,7 +607,7 @@
 				CODE_SIGN_ENTITLEMENTS = LessonManagmentApp/LessonManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3Z965975K2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ensemble;
@@ -485,7 +641,7 @@
 				CODE_SIGN_ENTITLEMENTS = LessonManagmentApp/LessonManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3Z965975K2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ensemble;
@@ -516,8 +672,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LessonWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3Z965975K2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LessonWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LessonWidget;
@@ -545,8 +703,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LessonWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3Z965975K2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LessonWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LessonWidget;
@@ -612,6 +772,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D81E2298306D0E8F005DB680 /* Build configuration list for PBXNativeTarget "PracticeTaskNotification" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D81E2299306D0E8F005DB680 /* Debug */,
+				D81E229A306D0E8F005DB680 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D85AF0F13043BC810094EBB8 /* Build configuration list for PBXProject "LessonManagmentApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

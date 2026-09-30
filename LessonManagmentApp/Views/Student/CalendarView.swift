@@ -273,6 +273,7 @@ private func makeCalendarPreviewViewModel(
     lessonRepository: LocalLessonRepository,
     practiceTaskRepository: LocalPracticeTaskRepository,
     resourceRepository: LocalResourceRepository,
+    userRepository: LocalUserRepository,
     studentID: UUID,
     teacherID: UUID
 ) -> CalendarViewModel {
@@ -322,7 +323,8 @@ private func makeCalendarPreviewViewModel(
     return CalendarViewModel(
         lessonRepository: lessonRepository,
         practiceTaskRepository: practiceTaskRepository,
-        resourceRepository: resourceRepository
+        resourceRepository: resourceRepository,
+        userRepository: userRepository
     )
 }
 
@@ -341,6 +343,7 @@ private func makeCalendarPreviewViewModel(
         for: Lesson.self,
         PracticeTask.self,
         Resource.self,
+        User.self,
         configurations: ModelConfiguration(
             isStoredInMemoryOnly: true
         )
@@ -360,12 +363,18 @@ private func makeCalendarPreviewViewModel(
         LocalResourceRepository(
             modelContext: container.mainContext
         )
+    
+    let userRepository =
+        LocalUserRepository(
+            modelContext: container.mainContext
+        )
 
     let viewModel =
         makeCalendarPreviewViewModel(
             lessonRepository: lessonRepository,
             practiceTaskRepository: practiceTaskRepository,
             resourceRepository: resourceRepository,
+            userRepository: userRepository,
             studentID: studentID,
             teacherID: teacherID
         )

@@ -15,9 +15,11 @@ class CalendarViewModel: ObservableObject {
     
     @Published var practiceTasks: [PracticeTask] = []
     @Published var resources: [Resource] = []
+    @Published var teachers: [User] = []
 
     private let practiceTaskRepository: PracticeTaskRepository
     private let resourceRepository: ResourceRepository
+    private let userRepository: UserRepository
 
     private let lessonRepository: LessonRepository
 
@@ -25,11 +27,13 @@ class CalendarViewModel: ObservableObject {
     init(
         lessonRepository: LessonRepository,
         practiceTaskRepository: PracticeTaskRepository,
-        resourceRepository: ResourceRepository
+        resourceRepository: ResourceRepository,
+        userRepository: UserRepository
     ) {
         self.lessonRepository = lessonRepository
         self.practiceTaskRepository = practiceTaskRepository
         self.resourceRepository = resourceRepository
+        self.userRepository = userRepository
     }
 
     // loads the student's lessons, practice tasks and resources
@@ -54,6 +58,40 @@ class CalendarViewModel: ObservableObject {
                 .getResources(
                     forStudentID: studentID
                 )
+        
+        teachers =
+            userRepository
+                .getTeachers()
+        
+        updateWidgetData()
+    }
+    
+    // updates the shared widget with the student's lessons
+    private func updateWidgetData() {
+
+        let widgetLessons =
+            lessons.map { lesson in
+
+                let teacherName =
+                    teachers.first {
+                        $0.id == lesson.teacherID
+                    }?.name
+                    ?? "Teacher"
+
+                return WidgetLessonData(
+                    id: lesson.id,
+                    title: lesson.title,
+                    date: lesson.date,
+                    durationMinutes: lesson.durationMinutes,
+                    personName: teacherName,
+                    location: lesson.location
+                )
+            }
+
+        WidgetDataService.save(
+            role: "student",
+            lessons: widgetLessons
+        )
     }
 
     // finds lessons that occur on the selected date

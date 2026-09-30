@@ -41,12 +41,101 @@ final class RootViewModel: ObservableObject {
     }
 
 
-    // sets the logged-in user
+    // sets the logged-in user and updates the widget
     func login(
-        user: User
+        user: User,
+        userRepository: UserRepository,
+        lessonRepository: LessonRepository
     ) {
 
         currentUser = user
+
+        updateWidgetData(
+            for: user,
+            userRepository: userRepository,
+            lessonRepository: lessonRepository
+        )
+    }
+    
+    // updates the widget for the logged-in user
+    private func updateWidgetData(
+        for user: User,
+        userRepository: UserRepository,
+        lessonRepository: LessonRepository
+    ) {
+
+        if user.role == .teacher {
+
+            let lessons =
+                lessonRepository
+                    .getLessons(
+                        forTeacherID: user.id
+                    )
+
+            let students =
+                userRepository
+                    .getStudents()
+
+            let widgetLessons =
+                lessons.map { lesson in
+
+                    let studentName =
+                        students.first {
+                            $0.id == lesson.studentID
+                        }?.name
+                        ?? "Student"
+
+                    return WidgetLessonData(
+                        id: lesson.id,
+                        title: lesson.title,
+                        date: lesson.date,
+                        durationMinutes: lesson.durationMinutes,
+                        personName: studentName,
+                        location: lesson.location
+                    )
+                }
+
+            WidgetDataService.save(
+                role: "teacher",
+                lessons: widgetLessons
+            )
+
+        } else {
+
+            let lessons =
+                lessonRepository
+                    .getLessons(
+                        forStudentID: user.id
+                    )
+
+            let teachers =
+                userRepository
+                    .getTeachers()
+
+            let widgetLessons =
+                lessons.map { lesson in
+
+                    let teacherName =
+                        teachers.first {
+                            $0.id == lesson.teacherID
+                        }?.name
+                        ?? "Teacher"
+
+                    return WidgetLessonData(
+                        id: lesson.id,
+                        title: lesson.title,
+                        date: lesson.date,
+                        durationMinutes: lesson.durationMinutes,
+                        personName: teacherName,
+                        location: lesson.location
+                    )
+                }
+
+            WidgetDataService.save(
+                role: "student",
+                lessons: widgetLessons
+            )
+        }
     }
 
     

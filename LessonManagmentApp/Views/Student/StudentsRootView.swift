@@ -175,7 +175,8 @@ struct StudentRootView: View {
                 viewModel: CalendarViewModel(
                     lessonRepository: lessonRepository,
                     practiceTaskRepository: practiceTaskRepository,
-                    resourceRepository: resourceRepository
+                    resourceRepository: resourceRepository,
+                    userRepository: userRepository
                 ),
                 showMenu: $showMenu,
                 studentID: student.id,

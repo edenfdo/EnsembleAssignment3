@@ -310,6 +310,17 @@ struct AssignPracticeTaskView: View {
                 dueDate: dueDate
             )
 
+            if let lesson = selectedLesson {
+
+                NotificationService
+                    .schedulePracticeTaskDue(
+                        title: title,
+                        description: taskDescription,
+                        dueDate: dueDate,
+                        lessonTitle: lesson.title
+                    )
+            }
+
             dismiss()
 
         } catch AssignPracticeTaskError.invalidDueDate {
