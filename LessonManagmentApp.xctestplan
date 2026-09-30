@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "344E4B34-C5D6-4B49-A5F8-5A80FFA71CB3",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:LessonManagmentApp.xcodeproj",
+      "identifier" : "D85AF0F53043BC810094EBB8",
+      "name" : "LessonManagmentApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:LessonManagmentApp.xcodeproj",
+        "identifier" : "D86922253056660F009E6816",
+        "name" : "LessonManagmentAppTests"
+      }
+    }
+  ],
+  "version" : 1
+}
