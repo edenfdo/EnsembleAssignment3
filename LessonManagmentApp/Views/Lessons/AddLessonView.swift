@@ -218,8 +218,7 @@ struct AddLessonView: View {
         }
     }
 
-
-    // validates the lesson time and adds the lesson if there is no conflict
+    // attempts to schedule the lesson and handles scheduling conflicts
     private func addLesson() {
 
         guard let selectedStudentID
@@ -227,91 +226,71 @@ struct AddLessonView: View {
             return
         }
 
-        // checks whether the new lesson overlaps an existing lesson
-        if let conflict =
-            viewModel.conflictingLesson(
-                startingDate: date,
+        do {
+
+            try viewModel.addLesson(
+                title: title,
+                date: date,
                 durationMinutes: durationMinutes,
+                location: location,
+                notes: notes,
+                studentID: selectedStudentID,
                 teacherID: teacher.id,
                 repeatOption: repeatOption,
                 numberOfLessons: numberOfLessons
-            ) {
+            )
 
-            let conflictStart =
-                conflict.date.formatted(
-                    date: .abbreviated,
-                    time: .shortened
-                )
+            dismiss()
 
-            let conflictEnd =
-                conflict.date
-                    .addingTimeInterval(
-                        TimeInterval(
-                            conflict.durationMinutes * 60
-                        )
-                    )
-                    .formatted(
-                        date: .omitted,
+        } catch ScheduleLessonError.schedulingConflict {
+
+            pendingStudentID =
+                selectedStudentID
+
+            // retrieves the conflicting lesson to provide useful information in the warning
+            if let conflict =
+                viewModel.conflictingLesson(
+                    startingDate: date,
+                    durationMinutes: durationMinutes,
+                    teacherID: teacher.id,
+                    repeatOption: repeatOption,
+                    numberOfLessons: numberOfLessons
+                ) {
+
+                let conflictStart =
+                    conflict.date.formatted(
+                        date: .abbreviated,
                         time: .shortened
                     )
 
-            conflictMessage = "\(conflict.title) is already scheduled from \(conflictStart) to \(conflictEnd)."
+                let conflictEnd =
+                    conflict.date
+                        .addingTimeInterval(
+                            TimeInterval(
+                                conflict.durationMinutes * 60
+                            )
+                        )
+                        .formatted(
+                            date: .omitted,
+                            time: .shortened
+                        )
 
-            // stores the selected student so the lesson can still be added after the warning
-            pendingStudentID = selectedStudentID
+                conflictMessage =
+                    "\(conflict.title) is already scheduled from \(conflictStart) to \(conflictEnd)."
+            }
 
             showConflictAlert = true
 
-            return
-        }
-        viewModel.addLesson(
-            title: title,
-            date: date,
-            durationMinutes: durationMinutes,
-            location: location,
-            notes: notes,
-            studentID: selectedStudentID,
-            teacherID: teacher.id,
-            repeatOption: repeatOption,
-            numberOfLessons: numberOfLessons
-        )
+        } catch {
 
-        dismiss()
+            print(
+                "Failed to schedule lesson: \(error)"
+            )
+        }
     }
 
 
-    // calculates the date for each repeated lesson
-    private func dateForLesson(
-        index: Int
-    ) -> Date {
-
-        let calendar =
-            Calendar.current
-
-        switch repeatOption {
-
-        case .none:
-
-            return date
-
-        case .weekly:
-
-            return calendar.date(
-                byAdding: .weekOfYear,
-                value: index,
-                to: date
-            ) ?? date
-
-        case .fortnightly:
-
-            return calendar.date(
-                byAdding: .weekOfYear,
-                value: index * 2,
-                to: date
-            ) ?? date
-        }
-        
-    }
+    
     
     // adds the lesson after the user chooses to ignore the conflict warning
     private func addLessonIgnoringConflict() {
@@ -322,18 +301,28 @@ struct AddLessonView: View {
             return
         }
 
-        viewModel.addLesson(
-            title: title,
-            date: date,
-            durationMinutes: durationMinutes,
-            location: location,
-            notes: notes,
-            studentID: studentID,
-            teacherID: teacher.id,
-            repeatOption: repeatOption,
-            numberOfLessons: numberOfLessons
-        )
+        do {
 
-        dismiss()
+            try viewModel.addLesson(
+                title: title,
+                date: date,
+                durationMinutes: durationMinutes,
+                location: location,
+                notes: notes,
+                studentID: studentID,
+                teacherID: teacher.id,
+                repeatOption: repeatOption,
+                numberOfLessons: numberOfLessons,
+                allowConflict: true
+            )
+
+            dismiss()
+
+        } catch {
+
+            print(
+                "Failed to schedule lesson: \(error)"
+            )
+        }
     }
 }

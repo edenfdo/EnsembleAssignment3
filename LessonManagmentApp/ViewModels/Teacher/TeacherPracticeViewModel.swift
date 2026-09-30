@@ -17,6 +17,8 @@ final class TeacherPracticeViewModel: ObservableObject {
     private let practiceTaskRepository: PracticeTaskRepository
     private let userRepository: UserRepository
     private let lessonRepository: LessonRepository
+    
+    private let assignPracticeTaskUseCase: AssignPracticeTaskUseCase
 
     // creates the view model with access to practice task, user and lesson data
     init(
@@ -27,6 +29,11 @@ final class TeacherPracticeViewModel: ObservableObject {
         self.practiceTaskRepository = practiceTaskRepository
         self.userRepository = userRepository
         self.lessonRepository = lessonRepository
+        self.assignPracticeTaskUseCase =
+            AssignPracticeTaskUseCase(
+                practiceTaskRepository: practiceTaskRepository,
+                lessonRepository: lessonRepository
+            )
     }
 
     // loads the teacher's students, lessons and practice tasks
@@ -54,7 +61,7 @@ final class TeacherPracticeViewModel: ObservableObject {
                 }
     }
 
-    // creates a practice task and links it to the selected lesson
+    // assigns a practice task through the practice task use case
     func assignTask(
         title: String,
         description: String,
@@ -62,44 +69,20 @@ final class TeacherPracticeViewModel: ObservableObject {
         teacherID: UUID,
         lessonID: UUID,
         dueDate: Date?
-    ) -> Bool {
+    ) throws {
 
-        guard let lesson = lessons.first(
-            where: {
-                $0.id == lessonID
-            }
-        ) else {
-            return false
-        }
-
-        // ensures the due date occurs after the linked lesson
-        if let dueDate = dueDate {
-
-            guard dueDate > lesson.date else {
-                return false
-            }
-        }
-
-        let task = PracticeTask(
-            id: UUID(),
+        try assignPracticeTaskUseCase.execute(
             title: title,
             description: description,
             studentID: studentID,
             teacherID: teacherID,
             lessonID: lessonID,
-            dueDate: dueDate,
-            isCompleted: false
-        )
-
-        practiceTaskRepository.addTask(
-            task
+            dueDate: dueDate
         )
 
         loadData(
             teacherID: teacherID
         )
-
-        return true
     }
 
     // finds the student assigned to a specific practice task

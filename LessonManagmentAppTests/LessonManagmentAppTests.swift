@@ -309,18 +309,15 @@ struct LessonManagmentAppTests {
                 24 * 60 * 60
             )
 
-        let result =
-            viewModel.assignTask(
-                title: "Practise Scale",
-                description:
-                    "Practise the C major scale.",
-                studentID: studentID,
-                teacherID: teacherID,
-                lessonID: lessonID,
-                dueDate: dueDate
-            )
+        try viewModel.assignTask(
+            title: "Practise Scale",
+            description: "Practise the C major scale.",
+            studentID: studentID,
+            teacherID: teacherID,
+            lessonID: lessonID,
+            dueDate: dueDate
+        )
 
-        #expect(result == true)
         #expect(viewModel.tasks.count == 1)
     }
 
@@ -378,17 +375,17 @@ struct LessonManagmentAppTests {
                 -60 * 60
             )
 
-        let result =
-            viewModel.assignTask(
+        #expect(throws: AssignPracticeTaskError.self) {
+
+            try viewModel.assignTask(
                 title: "Practise Scale",
-                description: "",
+                description: "Practise the C major scale.",
                 studentID: studentID,
                 teacherID: teacherID,
                 lessonID: lessonID,
                 dueDate: dueDate
             )
-
-        #expect(result == false)
+        }
         #expect(viewModel.tasks.isEmpty)
     }
 
@@ -441,8 +438,9 @@ struct LessonManagmentAppTests {
             teacherID: teacherID
         )
 
-        let result =
-            viewModel.assignTask(
+        #expect(throws: AssignPracticeTaskError.self) {
+
+            try viewModel.assignTask(
                 title: "Practise Scale",
                 description: "",
                 studentID: studentID,
@@ -450,8 +448,8 @@ struct LessonManagmentAppTests {
                 lessonID: lessonID,
                 dueDate: lessonDate
             )
+        }
 
-        #expect(result == false)
         #expect(viewModel.tasks.isEmpty)
     }
 

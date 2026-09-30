@@ -7,10 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D85FC1463068F4CC00676999 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1453068F4CC00676999 /* WidgetKit.framework */; };
+		D85FC1483068F4CC00676999 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1473068F4CC00676999 /* SwiftUI.framework */; };
+		D85FC1533068F4CE00676999 /* LessonWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D8E2C953305297AB00E2D679 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D8E2C952305297AB00E2D679 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D85FC1513068F4CE00676999 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D85AF0EE3043BC810094EBB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D85FC1433068F4CC00676999;
+			remoteInfo = LessonWidgetExtension;
+		};
 		D869222A30566610009E6816 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D85AF0EE3043BC810094EBB8 /* Project object */;
@@ -20,15 +30,51 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D85FC1543068F4CE00676999 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D85FC1533068F4CE00676999 /* LessonWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LessonManagmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LessonWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D85FC1453068F4CC00676999 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D85FC1473068F4CC00676999 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D86922263056660F009E6816 /* LessonManagmentAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LessonManagmentAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8A5BCB6306CB73000E9D8CA /* LessonManagmentApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LessonManagmentApp.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D85FC1573068F4CE00676999 /* Exceptions for "LessonWidget" folder in "LessonWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D85FC1433068F4CC00676999 /* LessonWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D85AF0F83043BC810094EBB8 /* LessonManagmentApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = LessonManagmentApp;
+			sourceTree = "<group>";
+		};
+		D85FC1493068F4CC00676999 /* LessonWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D85FC1573068F4CE00676999 /* Exceptions for "LessonWidget" folder in "LessonWidgetExtension" target */,
+			);
+			path = LessonWidget;
 			sourceTree = "<group>";
 		};
 		D869222730566610009E6816 /* LessonManagmentAppTests */ = {
@@ -47,6 +93,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D85FC1413068F4CC00676999 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D85FC1483068F4CC00676999 /* SwiftUI.framework in Frameworks */,
+				D85FC1463068F4CC00676999 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D86922233056660F009E6816 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -60,8 +115,10 @@
 		D85AF0ED3043BC810094EBB8 = {
 			isa = PBXGroup;
 			children = (
+				D8A5BCB6306CB73000E9D8CA /* LessonManagmentApp.xctestplan */,
 				D85AF0F83043BC810094EBB8 /* LessonManagmentApp */,
 				D869222730566610009E6816 /* LessonManagmentAppTests */,
+				D85FC1493068F4CC00676999 /* LessonWidget */,
 				D8E2C951305297AB00E2D679 /* Frameworks */,
 				D85AF0F73043BC810094EBB8 /* Products */,
 			);
@@ -72,6 +129,7 @@
 			children = (
 				D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */,
 				D86922263056660F009E6816 /* LessonManagmentAppTests.xctest */,
+				D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,6 +137,8 @@
 		D8E2C951305297AB00E2D679 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D85FC1453068F4CC00676999 /* WidgetKit.framework */,
+				D85FC1473068F4CC00676999 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -93,10 +153,12 @@
 				D85AF0F23043BC810094EBB8 /* Sources */,
 				D85AF0F33043BC810094EBB8 /* Frameworks */,
 				D85AF0F43043BC810094EBB8 /* Resources */,
+				D85FC1543068F4CE00676999 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D85FC1523068F4CE00676999 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D85AF0F83043BC810094EBB8 /* LessonManagmentApp */,
@@ -108,6 +170,28 @@
 			productName = LessonManagmentApp;
 			productReference = D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D85FC1433068F4CC00676999 /* LessonWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D85FC1583068F4CE00676999 /* Build configuration list for PBXNativeTarget "LessonWidgetExtension" */;
+			buildPhases = (
+				D85FC1403068F4CC00676999 /* Sources */,
+				D85FC1413068F4CC00676999 /* Frameworks */,
+				D85FC1423068F4CC00676999 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D85FC1493068F4CC00676999 /* LessonWidget */,
+			);
+			name = LessonWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LessonWidgetExtension;
+			productReference = D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		D86922253056660F009E6816 /* LessonManagmentAppTests */ = {
 			isa = PBXNativeTarget;
@@ -145,6 +229,9 @@
 					D85AF0F53043BC810094EBB8 = {
 						CreatedOnToolsVersion = 26.6;
 					};
+					D85FC1433068F4CC00676999 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					D86922253056660F009E6816 = {
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = D85AF0F53043BC810094EBB8;
@@ -170,12 +257,20 @@
 			targets = (
 				D85AF0F53043BC810094EBB8 /* LessonManagmentApp */,
 				D86922253056660F009E6816 /* LessonManagmentAppTests */,
+				D85FC1433068F4CC00676999 /* LessonWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D85AF0F43043BC810094EBB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D85FC1423068F4CC00676999 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -199,6 +294,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D85FC1403068F4CC00676999 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D86922223056660F009E6816 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -209,6 +311,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D85FC1523068F4CE00676999 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D85FC1433068F4CC00676999 /* LessonWidgetExtension */;
+			targetProxy = D85FC1513068F4CE00676999 /* PBXContainerItemProxy */;
+		};
 		D869222B30566610009E6816 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D85AF0F53043BC810094EBB8 /* LessonManagmentApp */;
@@ -341,8 +448,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LessonManagmentApp/LessonManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ensemble;
@@ -373,8 +482,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LessonManagmentApp/LessonManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ensemble;
@@ -393,6 +504,64 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D85FC1553068F4CE00676999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LessonWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LessonWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edenfdo.LessonManagmentApp.LessonWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D85FC1563068F4CE00676999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LessonWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LessonWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edenfdo.LessonManagmentApp.LessonWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -457,6 +626,15 @@
 			buildConfigurations = (
 				D85AF1023043BC820094EBB8 /* Debug */,
 				D85AF1033043BC820094EBB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D85FC1583068F4CE00676999 /* Build configuration list for PBXNativeTarget "LessonWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D85FC1553068F4CE00676999 /* Debug */,
+				D85FC1563068F4CE00676999 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

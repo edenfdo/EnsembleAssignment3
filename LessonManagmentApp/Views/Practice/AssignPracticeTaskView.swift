@@ -275,7 +275,6 @@ struct AssignPracticeTaskView: View {
             )
             .isEmpty
         else {
-
             errorMessage =
                 "Please enter a task title."
 
@@ -285,7 +284,6 @@ struct AssignPracticeTaskView: View {
         guard let studentID =
             selectedStudentID
         else {
-
             errorMessage =
                 "Please select a student."
 
@@ -295,37 +293,44 @@ struct AssignPracticeTaskView: View {
         guard let lessonID =
             selectedLessonID
         else {
-
             errorMessage =
                 "Please select a lesson."
 
             return
         }
 
-        // attempts to create the task using the selected student, lesson and due date
-        let success =
-            viewModel.assignTask(
-                title: title,
-                description:
-                    taskDescription,
-                studentID:
-                    studentID,
-                teacherID:
-                    teacher.id,
-                lessonID:
-                    lessonID,
-                dueDate:
-                    dueDate
-            )
+        do {
 
-        if success {
+            try viewModel.assignTask(
+                title: title,
+                description: taskDescription,
+                studentID: studentID,
+                teacherID: teacher.id,
+                lessonID: lessonID,
+                dueDate: dueDate
+            )
 
             dismiss()
 
-        } else {
+        } catch AssignPracticeTaskError.invalidDueDate {
 
             errorMessage =
                 "Due date must be after the lesson date."
+
+        } catch AssignPracticeTaskError.lessonNotFound {
+
+            errorMessage =
+                "The selected lesson could not be found."
+
+        } catch AssignPracticeTaskError.missingTitle {
+
+            errorMessage =
+                "Please enter a task title."
+
+        } catch {
+
+            errorMessage =
+                "Unable to assign the practice task."
         }
     }
 

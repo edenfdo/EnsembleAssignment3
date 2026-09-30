@@ -8,36 +8,6 @@
 import Foundation
 import Combine
 
-enum LessonRepeatOption:
-    String,
-    CaseIterable,
-    Identifiable {
-
-    case none
-    case weekly
-    case fortnightly
-
-    var id: String {
-        rawValue
-    }
-
-    // returns a user-friendly name for each repeat option
-    var displayName: String {
-
-        switch self {
-
-        case .none:
-            return "Does Not Repeat"
-
-        case .weekly:
-            return "Weekly"
-
-        case .fortnightly:
-            return "Fortnightly"
-        }
-    }
-}
-
 
 final class TeacherCalendarViewModel: ObservableObject {
 
@@ -53,6 +23,8 @@ final class TeacherCalendarViewModel: ObservableObject {
     private let practiceTaskRepository: PracticeTaskRepository
     private let resourceRepository: ResourceRepository
     
+    private let scheduleLessonUseCase: ScheduleLessonUseCase
+    
     // creates the view model with access to lesson, user, practice task and resource data
     init(
         lessonRepository: LessonRepository,
@@ -67,6 +39,10 @@ final class TeacherCalendarViewModel: ObservableObject {
             practiceTaskRepository
         self.resourceRepository =
             resourceRepository
+        self.scheduleLessonUseCase =
+            ScheduleLessonUseCase(
+                lessonRepository: lessonRepository
+            )
     }
 
 
@@ -101,8 +77,7 @@ final class TeacherCalendarViewModel: ObservableObject {
                 )
     }
 
-
-    // creates one or more lessons based on the selected repeat option
+    // schedules one or more lessons through the scheduling use case
     func addLesson(
         title: String,
         date: Date,
@@ -112,44 +87,48 @@ final class TeacherCalendarViewModel: ObservableObject {
         studentID: UUID,
         teacherID: UUID,
         repeatOption: LessonRepeatOption,
-        numberOfLessons: Int
-    ){
+        numberOfLessons: Int,
+        allowConflict: Bool = false
+    ) throws {
 
-        // determines how many lessons should be created
-        let lessonCount =
-            repeatOption == .none
-            ? 1
-            : numberOfLessons
-
-        for index in 0..<lessonCount {
-
-            let lessonDate =
-                dateForLesson(
-                    startingDate: date,
-                    index: index,
-                    repeatOption: repeatOption
-                )
-
-            let lesson = Lesson(
-                id: UUID(),
-                title: title,
-                date: lessonDate,
-                durationMinutes: durationMinutes,
-                studentID: studentID,
-                teacherID: teacherID,
-                notes: notes,
-                location: location
-            )
-
-            lessonRepository.addLesson(
-                lesson
-            )
-        }
+        try scheduleLessonUseCase.execute(
+            title: title,
+            date: date,
+            durationMinutes: durationMinutes,
+            location: location,
+            notes: notes,
+            studentID: studentID,
+            teacherID: teacherID,
+            repeatOption: repeatOption,
+            numberOfLessons: numberOfLessons,
+            allowConflict: allowConflict
+        )
 
         loadData(
             teacherID: teacherID
         )
     }
+    
+    // checks for lesson conflicts through the scheduling use case
+    func conflictingLesson(
+        startingDate: Date,
+        durationMinutes: Int,
+        teacherID: UUID,
+        repeatOption: LessonRepeatOption,
+        numberOfLessons: Int,
+        excludingLessonID: UUID? = nil
+    ) -> Lesson? {
+
+        scheduleLessonUseCase.conflictingLesson(
+            startingDate: startingDate,
+            durationMinutes: durationMinutes,
+            teacherID: teacherID,
+            repeatOption: repeatOption,
+            numberOfLessons: numberOfLessons,
+            excludingLessonID: excludingLessonID
+        )
+    }
+    
 
     // finds the student assigned to a specific lesson
     func studentForLesson(
@@ -182,114 +161,7 @@ final class TeacherCalendarViewModel: ObservableObject {
         }
     }
     
-    // checks whether a new or repeated lesson overlaps an existing lesson
-    func conflictingLesson(
-        startingDate: Date,
-        durationMinutes: Int,
-        teacherID: UUID,
-        repeatOption: LessonRepeatOption,
-        numberOfLessons: Int,
-        excludingLessonID: UUID? = nil
-    ) -> Lesson? {
-
-        // determines how many lesson dates need to be checked
-        let lessonCount =
-            repeatOption == .none
-            ? 1
-            : numberOfLessons
-
-        for index in 0..<lessonCount {
-
-            let newLessonStart =
-                dateForLesson(
-                    startingDate: startingDate,
-                    index: index,
-                    repeatOption: repeatOption
-                )
-
-            let newLessonEnd =
-                newLessonStart.addingTimeInterval(
-                    TimeInterval(
-                        durationMinutes * 60
-                    )
-                )
-
-            for existingLesson in lessons {
-
-                guard
-                    existingLesson.teacherID == teacherID
-                else {
-                    continue
-                }
-
-                // ignores the lesson currently being edited
-                if existingLesson.id ==
-                    excludingLessonID {
-                    continue
-                }
-
-                let existingStart =
-                    existingLesson.date
-
-                let existingEnd =
-                    existingStart
-                        .addingTimeInterval(
-                            TimeInterval(
-                                existingLesson
-                                    .durationMinutes * 60
-                            )
-                        )
-
-                // checks whether the two lesson time ranges overlap
-                let overlaps =
-                    newLessonStart < existingEnd
-                    &&
-                    newLessonEnd > existingStart
-
-                if overlaps {
-                    return existingLesson
-                }
-            }
-        }
-
-        return nil
-    }
-
-
-    // calculates the date of each repeated lesson
-    private func dateForLesson(
-        startingDate: Date,
-        index: Int,
-        repeatOption: LessonRepeatOption
-    ) -> Date {
-
-        let calendar =
-            Calendar.current
-
-        switch repeatOption {
-
-        case .none:
-
-            return startingDate
-
-        case .weekly:
-
-            return calendar.date(
-                byAdding: .weekOfYear,
-                value: index,
-                to: startingDate
-            ) ?? startingDate
-
-        case .fortnightly:
-
-            return calendar.date(
-                byAdding: .weekOfYear,
-                value: index * 2,
-                to: startingDate
-            ) ?? startingDate
-        }
-    }
-    
+   
     // updates an existing lesson and reloads the teacher's calendar data
     func updateLesson(
         _ lesson: Lesson,
