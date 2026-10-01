@@ -226,69 +226,71 @@ struct AddLessonView: View {
             return
         }
 
-        do {
+        Task {
 
-            try viewModel.addLesson(
-                title: title,
-                date: date,
-                durationMinutes: durationMinutes,
-                location: location,
-                notes: notes,
-                studentID: selectedStudentID,
-                teacherID: teacher.id,
-                repeatOption: repeatOption,
-                numberOfLessons: numberOfLessons
-            )
+            do {
 
-            dismiss()
-
-        } catch ScheduleLessonError.schedulingConflict {
-
-            pendingStudentID =
-                selectedStudentID
-
-            // retrieves the conflicting lesson to provide useful information in the warning
-            if let conflict =
-                viewModel.conflictingLesson(
-                    startingDate: date,
+                try await viewModel.addLesson(
+                    title: title,
+                    date: date,
                     durationMinutes: durationMinutes,
+                    location: location,
+                    notes: notes,
+                    studentID: selectedStudentID,
                     teacherID: teacher.id,
                     repeatOption: repeatOption,
                     numberOfLessons: numberOfLessons
-                ) {
+                )
 
-                let conflictStart =
-                    conflict.date.formatted(
-                        date: .abbreviated,
-                        time: .shortened
-                    )
+                dismiss()
 
-                let conflictEnd =
-                    conflict.date
-                        .addingTimeInterval(
-                            TimeInterval(
-                                conflict.durationMinutes * 60
-                            )
-                        )
-                        .formatted(
-                            date: .omitted,
+            } catch ScheduleLessonError.schedulingConflict {
+
+                pendingStudentID =
+                    selectedStudentID
+
+                // retrieves the conflicting lesson to provide useful information in the warning
+                if let conflict =
+                    viewModel.conflictingLesson(
+                        startingDate: date,
+                        durationMinutes: durationMinutes,
+                        teacherID: teacher.id,
+                        repeatOption: repeatOption,
+                        numberOfLessons: numberOfLessons
+                    ) {
+
+                    let conflictStart =
+                        conflict.date.formatted(
+                            date: .abbreviated,
                             time: .shortened
                         )
 
-                conflictMessage =
-                    "\(conflict.title) is already scheduled from \(conflictStart) to \(conflictEnd)."
+                    let conflictEnd =
+                        conflict.date
+                            .addingTimeInterval(
+                                TimeInterval(
+                                    conflict.durationMinutes * 60
+                                )
+                            )
+                            .formatted(
+                                date: .omitted,
+                                time: .shortened
+                            )
+
+                    conflictMessage =
+                        "\(conflict.title) is already scheduled from \(conflictStart) to \(conflictEnd)."
+                }
+
+                showConflictAlert = true
+
+            } catch {
+
+                print(
+                    "Failed to schedule lesson: \(error)"
+                )
             }
-
-            showConflictAlert = true
-
-        } catch {
-
-            print(
-                "Failed to schedule lesson: \(error)"
-            )
         }
     }
-
 
     
     
@@ -301,28 +303,31 @@ struct AddLessonView: View {
             return
         }
 
-        do {
+        Task {
 
-            try viewModel.addLesson(
-                title: title,
-                date: date,
-                durationMinutes: durationMinutes,
-                location: location,
-                notes: notes,
-                studentID: studentID,
-                teacherID: teacher.id,
-                repeatOption: repeatOption,
-                numberOfLessons: numberOfLessons,
-                allowConflict: true
-            )
+            do {
 
-            dismiss()
+                try await viewModel.addLesson(
+                    title: title,
+                    date: date,
+                    durationMinutes: durationMinutes,
+                    location: location,
+                    notes: notes,
+                    studentID: studentID,
+                    teacherID: teacher.id,
+                    repeatOption: repeatOption,
+                    numberOfLessons: numberOfLessons,
+                    allowConflict: true
+                )
 
-        } catch {
+                dismiss()
 
-            print(
-                "Failed to schedule lesson: \(error)"
-            )
+            } catch {
+
+                print(
+                    "Failed to schedule lesson: \(error)"
+                )
+            }
         }
     }
 }

@@ -16,6 +16,8 @@ final class TeacherCalendarViewModel: ObservableObject {
     
     @Published var lessons: [Lesson] = []
     @Published var students: [User] = []
+    
+    private let saveLessonToCloudUseCase: SaveLessonToCloudUseCase
 
 
     private let lessonRepository: LessonRepository
@@ -43,6 +45,12 @@ final class TeacherCalendarViewModel: ObservableObject {
         self.scheduleLessonUseCase =
             ScheduleLessonUseCase(
                 lessonRepository: lessonRepository
+            )
+        
+        self.saveLessonToCloudUseCase =
+            SaveLessonToCloudUseCase(
+                lessonRepository: SupabaseLessonRepository(),
+                userRepository: SupabaseUserRepository()
             )
     }
 
@@ -108,7 +116,7 @@ final class TeacherCalendarViewModel: ObservableObject {
         )
     }
 
-    // schedules one or more lessons through the scheduling use case
+    // schedules one or more lessons locally and saves them to Supabase
     func addLesson(
         title: String,
         date: Date,
@@ -120,7 +128,23 @@ final class TeacherCalendarViewModel: ObservableObject {
         repeatOption: LessonRepeatOption,
         numberOfLessons: Int,
         allowConflict: Bool = false
-    ) throws {
+    ) async throws {
+
+        guard let student =
+            students.first(where: {
+                $0.id == studentID
+            })
+        else {
+            return
+        }
+
+        // stores existing lesson IDs so newly created lessons can be identified
+        let existingLessonIDs =
+            Set(
+                lessons.map {
+                    $0.id
+                }
+            )
 
         try scheduleLessonUseCase.execute(
             title: title,
@@ -138,6 +162,21 @@ final class TeacherCalendarViewModel: ObservableObject {
         loadData(
             teacherID: teacherID
         )
+
+        // finds the lessons that were just created
+        let newLessons =
+            lessons.filter {
+                !existingLessonIDs.contains($0.id)
+            }
+
+        // saves each new lesson to Supabase
+        for lesson in newLessons {
+
+            try await saveLessonToCloudUseCase.execute(
+                lesson: lesson,
+                studentEmail: student.email
+            )
+        }
     }
     
     // checks for lesson conflicts through the scheduling use case
