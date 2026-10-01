@@ -13,6 +13,7 @@
 		D85FC1463068F4CC00676999 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1453068F4CC00676999 /* WidgetKit.framework */; };
 		D85FC1483068F4CC00676999 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85FC1473068F4CC00676999 /* SwiftUI.framework */; };
 		D85FC1533068F4CE00676999 /* LessonWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D85FC1443068F4CC00676999 /* LessonWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D891823C306E218D004D4D86 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D891823B306E218D004D4D86 /* Supabase */; };
 		D8E2C953305297AB00E2D679 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D8E2C952305297AB00E2D679 /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -138,6 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D891823C306E218D004D4D86 /* Supabase in Frameworks */,
 				D8E2C953305297AB00E2D679 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -243,6 +245,7 @@
 			name = LessonManagmentApp;
 			packageProductDependencies = (
 				D8E2C952305297AB00E2D679 /* Lottie */,
+				D891823B306E218D004D4D86 /* Supabase */,
 			);
 			productName = LessonManagmentApp;
 			productReference = D85AF0F63043BC810094EBB8 /* LessonManagmentApp.app */;
@@ -329,6 +332,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D84C2DA93052957B007D5C23 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				D891823A306E218D004D4D86 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D85AF0F73043BC810094EBB8 /* Products */;
@@ -828,9 +832,22 @@
 				minimumVersion = 4.6.1;
 			};
 		};
+		D891823A306E218D004D4D86 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D891823B306E218D004D4D86 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D891823A306E218D004D4D86 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		D8E2C952305297AB00E2D679 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D84C2DA93052957B007D5C23 /* XCRemoteSwiftPackageReference "lottie-spm" */;

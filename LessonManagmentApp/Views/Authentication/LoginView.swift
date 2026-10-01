@@ -81,10 +81,13 @@ struct LoginView: View {
     // attempts to log in and passes the authenticated user back to the parent view
     private func login() {
 
-        if let user =
-            viewModel.login() {
+        Task {
 
-            onLogin(user)
+            if let user =
+                await viewModel.login() {
+
+                onLogin(user)
+            }
         }
     }
 }

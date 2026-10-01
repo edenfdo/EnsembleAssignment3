@@ -456,7 +456,7 @@ struct LessonManagmentAppTests {
 
     // verifies login succeeds with the correct email and password
     @Test
-    func login_succeeds_withCorrectEmailAndPassword() throws {
+    func login_succeeds_withCorrectEmailAndPassword() async throws {
 
         let container = try makeContainer()
 
@@ -489,7 +489,7 @@ struct LessonManagmentAppTests {
             "student123"
 
         let loggedInUser =
-            viewModel.login()
+            await viewModel.login()
 
         #expect(loggedInUser != nil)
         #expect(loggedInUser?.email == "mia@email.com")
@@ -499,7 +499,7 @@ struct LessonManagmentAppTests {
 
     // verifies login fails when the password is incorrect
     @Test
-    func login_fails_withIncorrectPassword() throws {
+    func login_fails_withIncorrectPassword() async throws {
 
         let container = try makeContainer()
 
@@ -532,7 +532,7 @@ struct LessonManagmentAppTests {
             "wrongpassword"
 
         let loggedInUser =
-            viewModel.login()
+            await viewModel.login()
 
         #expect(loggedInUser == nil)
 

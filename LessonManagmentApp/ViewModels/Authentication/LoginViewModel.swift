@@ -7,7 +7,9 @@
 
 import Foundation
 import Combine
+import Supabase
 
+@MainActor
 final class LoginViewModel: ObservableObject {
 
     @Published var email = ""
@@ -23,8 +25,8 @@ final class LoginViewModel: ObservableObject {
         self.userRepository = userRepository
     }
 
-    // validates the entered credentials and returns the matching user if successful
-    func login() -> User? {
+    // authenticates with Supabase and returns the matching local user
+    func login() async -> User? {
 
         errorMessage = ""
 
@@ -36,28 +38,37 @@ final class LoginViewModel: ObservableObject {
                 )
                 .lowercased()
 
-        let users =
-            userRepository.getAllUsers()
+        do {
 
-        // finds a user with the matching email and verifies the entered password
-        let matchingUser =
-            users.first { user in
-                user.normalizedEmail
-                    == normalizedEmail
-                &&
-                PasswordHasher.verify(
-                    password: password,
-                    hash: user.passwordHash
-                )
+            // authenticates the entered credentials with Supabase
+            try await SupabaseService.client.auth.signIn(
+                email: normalizedEmail,
+                password: password
+            )
+
+            let users =
+                userRepository.getAllUsers()
+
+            // finds the local user so the existing app can continue using their details and role
+            guard let matchingUser =
+                users.first(where: {
+                    $0.normalizedEmail == normalizedEmail
+                })
+            else {
+                errorMessage =
+                    "Your account was authenticated, but no local user profile was found."
+
+                return nil
             }
 
-        if let matchingUser {
             return matchingUser
+
+        } catch {
+
+            errorMessage =
+                "Email or password is incorrect. Please check your details and try again."
+
+            return nil
         }
-
-        errorMessage =
-            "Email or password is incorrect. Please check your details and try again."
-
-        return nil
     }
 }
