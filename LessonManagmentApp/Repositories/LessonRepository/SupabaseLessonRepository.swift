@@ -46,4 +46,35 @@ final class SupabaseLessonRepository {
 
         return lessons
     }
+    
+    // updates an existing lesson in the Supabase database
+    func updateLesson(
+        _ lesson: SupabaseLesson
+    ) async throws {
+
+        try await SupabaseService.client
+            .from("lessons")
+            .update(lesson)
+            .eq(
+                "id",
+                value: lesson.id.uuidString
+            )
+            .execute()
+    }
+
+
+    // deletes a lesson from the Supabase database
+    func deleteLesson(
+        id: UUID
+    ) async throws {
+
+        try await SupabaseService.client
+            .from("lessons")
+            .delete()
+            .eq(
+                "id",
+                value: id.uuidString
+            )
+            .execute()
+    }
 }

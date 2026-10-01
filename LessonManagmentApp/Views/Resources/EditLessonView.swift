@@ -197,22 +197,31 @@ struct EditLessonView: View {
     }
     
     // updates the lesson with the edited values and closes the form
+    // updates the lesson with the edited values and closes the form
     private func saveLesson() {
 
-        viewModel.updateLesson(
-            lesson,
-            title: title,
-            date: date,
-            durationMinutes:
-                durationMinutes,
-            location:
-                location,
-            notes:
-                notes,
-            teacherID:
-                teacher.id
-        )
+        Task {
 
-        dismiss()
+            do {
+
+                try await viewModel.updateLesson(
+                    lesson,
+                    title: title,
+                    date: date,
+                    durationMinutes: durationMinutes,
+                    location: location,
+                    notes: notes,
+                    teacherID: teacher.id
+                )
+
+                dismiss()
+
+            } catch {
+
+                print(
+                    "Failed to update lesson: \(error)"
+                )
+            }
+        }
     }
 }

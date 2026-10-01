@@ -53,4 +53,49 @@ struct SaveLessonToCloudUseCase {
 
         try await lessonRepository.addLesson(cloudLesson)
     }
+    
+    // updates an existing lesson in Supabase
+    func update(
+        lesson: Lesson,
+        studentEmail: String
+    ) async throws {
+
+        let authenticatedTeacher =
+            try await SupabaseService.client.auth.user()
+
+        guard let studentProfile =
+            try await userRepository.getProfile(
+                email: studentEmail
+            )
+        else {
+            throw SaveLessonToCloudError.studentProfileNotFound
+        }
+
+        let cloudLesson =
+            SupabaseLesson(
+                id: lesson.id,
+                title: lesson.title,
+                date: lesson.date,
+                durationMinutes: lesson.durationMinutes,
+                studentID: studentProfile.id,
+                teacherID: authenticatedTeacher.id,
+                notes: lesson.notes,
+                location: lesson.location
+            )
+
+        try await lessonRepository.updateLesson(
+            cloudLesson
+        )
+    }
+
+
+    // deletes an existing lesson from Supabase
+    func delete(
+        lessonID: UUID
+    ) async throws {
+
+        try await lessonRepository.deleteLesson(
+            id: lessonID
+        )
+    }
 }

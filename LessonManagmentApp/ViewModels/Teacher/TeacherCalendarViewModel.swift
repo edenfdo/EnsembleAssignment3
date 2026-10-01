@@ -232,7 +232,7 @@ final class TeacherCalendarViewModel: ObservableObject {
     }
     
    
-    // updates an existing lesson and reloads the teacher's calendar data
+    // updates an existing lesson locally and in Supabase
     func updateLesson(
         _ lesson: Lesson,
         title: String,
@@ -241,7 +241,15 @@ final class TeacherCalendarViewModel: ObservableObject {
         location: String,
         notes: String,
         teacherID: UUID
-    ) {
+    ) async throws {
+
+        guard let student =
+            students.first(where: {
+                $0.id == lesson.studentID
+            })
+        else {
+            return
+        }
 
         lesson.title = title
         lesson.date = date
@@ -253,16 +261,21 @@ final class TeacherCalendarViewModel: ObservableObject {
             lesson
         )
 
+        try await saveLessonToCloudUseCase.update(
+            lesson: lesson,
+            studentEmail: student.email
+        )
+
         loadData(
             teacherID: teacherID
         )
     }
     
-    // deletes a lesson and any practice tasks or resources linked to it
+    // deletes a lesson locally and from Supabase
     func deleteLesson(
         _ lesson: Lesson,
         teacherID: UUID
-    ) {
+    ) async throws {
 
         let linkedResources =
             resources.filter {
@@ -273,6 +286,11 @@ final class TeacherCalendarViewModel: ObservableObject {
             practiceTasks.filter {
                 $0.lessonID == lesson.id
             }
+
+        // deletes the cloud lesson before removing the local data
+        try await saveLessonToCloudUseCase.delete(
+            lessonID: lesson.id
+        )
 
         // deletes attached files and resource records
         for resource in linkedResources {
@@ -304,12 +322,10 @@ final class TeacherCalendarViewModel: ObservableObject {
             )
         }
 
-        // deletes the lesson itself
         lessonRepository.deleteLesson(
             lesson
         )
 
-        // reloads the teacher's calendar data
         loadData(
             teacherID: teacherID
         )

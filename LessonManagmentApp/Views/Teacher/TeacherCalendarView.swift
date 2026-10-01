@@ -247,13 +247,25 @@ struct TeacherCalendarView: View {
 
                 if let lesson = lessonToDelete {
 
-                    viewModel.deleteLesson(
-                        lesson,
-                        teacherID: teacher.id
-                    )
-                }
+                    Task {
 
-                lessonToDelete = nil
+                        do {
+
+                            try await viewModel.deleteLesson(
+                                lesson,
+                                teacherID: teacher.id
+                            )
+
+                            lessonToDelete = nil
+
+                        } catch {
+
+                            print(
+                                "Failed to delete lesson: \(error)"
+                            )
+                        }
+                    }
+                }
             }
 
         } message: {
