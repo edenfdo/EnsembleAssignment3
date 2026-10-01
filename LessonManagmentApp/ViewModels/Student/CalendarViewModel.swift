@@ -16,6 +16,8 @@ class CalendarViewModel: ObservableObject {
     @Published var practiceTasks: [PracticeTask] = []
     @Published var resources: [Resource] = []
     @Published var teachers: [User] = []
+    
+    private let syncStudentLessonsUseCase: SyncStudentLessonsUseCase
 
     private let practiceTaskRepository: PracticeTaskRepository
     private let resourceRepository: ResourceRepository
@@ -34,8 +36,44 @@ class CalendarViewModel: ObservableObject {
         self.practiceTaskRepository = practiceTaskRepository
         self.resourceRepository = resourceRepository
         self.userRepository = userRepository
+        
+        self.syncStudentLessonsUseCase =
+            SyncStudentLessonsUseCase(
+                cloudLessonRepository: SupabaseLessonRepository(),
+                cloudUserRepository: SupabaseUserRepository(),
+                localLessonRepository: lessonRepository,
+                localUserRepository: userRepository
+            )
     }
 
+    // syncs cloud lessons before loading the student's local calendar data
+    func syncLessons(
+        studentID: UUID
+    ) async {
+
+        do {
+
+            try await syncStudentLessonsUseCase.execute(
+                localStudentID: studentID
+            )
+
+            loadData(
+                studentID: studentID
+            )
+
+        } catch {
+
+            print(
+                "Failed to sync student lessons: \(error)"
+            )
+
+            // still loads existing local data if cloud sync fails
+            loadData(
+                studentID: studentID
+            )
+        }
+    }
+    
     // loads the student's lessons, practice tasks and resources
     func loadData(
         studentID: UUID

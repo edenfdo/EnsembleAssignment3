@@ -158,12 +158,15 @@ struct CalendarView: View {
             }
             .onAppear {
 
-                viewModel.loadData(
-                    studentID: studentID
-                )
-
                 displayedMonth =
                     viewModel.selectedDate
+
+                Task {
+
+                    await viewModel.syncLessons(
+                        studentID: studentID
+                    )
+                }
             }
 
 
