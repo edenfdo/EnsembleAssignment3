@@ -299,48 +299,55 @@ struct AssignPracticeTaskView: View {
             return
         }
 
-        do {
+        Task {
 
-            try viewModel.assignTask(
-                title: title,
-                description: taskDescription,
-                studentID: studentID,
-                teacherID: teacher.id,
-                lessonID: lessonID,
-                dueDate: dueDate
-            )
+            do {
 
-            if let lesson = selectedLesson {
+                try await viewModel.assignTask(
+                    title: title,
+                    description: taskDescription,
+                    studentID: studentID,
+                    teacherID: teacher.id,
+                    lessonID: lessonID,
+                    dueDate: dueDate
+                )
 
-                NotificationService
-                    .schedulePracticeTaskDue(
-                        title: title,
-                        dueDate: dueDate,
-                        lessonTitle: lesson.title
-                    )
+                dismiss()
+
+            } catch AssignPracticeTaskError.invalidDueDate {
+
+                errorMessage =
+                    "Due date must be after the lesson date."
+
+            } catch AssignPracticeTaskError.lessonNotFound {
+
+                errorMessage =
+                    "The selected lesson could not be found."
+
+            } catch AssignPracticeTaskError.missingTitle {
+
+                errorMessage =
+                    "Please enter a task title."
+
+            } catch SavePracticeTaskToCloudError.studentProfileNotFound {
+
+                errorMessage =
+                    "The selected student's cloud profile could not be found."
+
+            } catch SavePracticeTaskToCloudError.lessonNotFound {
+
+                errorMessage =
+                    "This lesson has not been synced to the cloud yet."
+
+            } catch {
+
+                errorMessage =
+                    "Unable to assign the practice task."
+
+                print(
+                    "Failed to assign practice task: \(error)"
+                )
             }
-
-            dismiss()
-
-        } catch AssignPracticeTaskError.invalidDueDate {
-
-            errorMessage =
-                "Due date must be after the lesson date."
-
-        } catch AssignPracticeTaskError.lessonNotFound {
-
-            errorMessage =
-                "The selected lesson could not be found."
-
-        } catch AssignPracticeTaskError.missingTitle {
-
-            errorMessage =
-                "Please enter a task title."
-
-        } catch {
-
-            errorMessage =
-                "Unable to assign the practice task."
         }
     }
 

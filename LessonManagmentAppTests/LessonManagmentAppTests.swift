@@ -253,7 +253,7 @@ struct LessonManagmentAppTests {
 
     // verifies a practice task can be assigned when its due date is after the lesson
     @Test
-    func assignPracticeTask_succeeds_whenDueDateIsAfterLesson() throws {
+    func assignPracticeTask_succeeds_whenDueDateIsAfterLesson() async throws {
 
         let container = try makeContainer()
 
@@ -309,7 +309,7 @@ struct LessonManagmentAppTests {
                 24 * 60 * 60
             )
 
-        try viewModel.assignTask(
+        try await viewModel.assignTask(
             title: "Practise Scale",
             description: "Practise the C major scale.",
             studentID: studentID,
@@ -324,7 +324,7 @@ struct LessonManagmentAppTests {
 
     // verifies a practice task is rejected when its due date is before the lesson
     @Test
-    func assignPracticeTask_fails_whenDueDateIsBeforeLesson() throws {
+    func assignPracticeTask_fails_whenDueDateIsBeforeLesson() async throws {
 
         let container = try makeContainer()
 
@@ -375,9 +375,9 @@ struct LessonManagmentAppTests {
                 -60 * 60
             )
 
-        #expect(throws: AssignPracticeTaskError.self) {
+        await #expect(throws: AssignPracticeTaskError.self) {
 
-            try viewModel.assignTask(
+            try await viewModel.assignTask(
                 title: "Practise Scale",
                 description: "Practise the C major scale.",
                 studentID: studentID,
@@ -392,7 +392,7 @@ struct LessonManagmentAppTests {
 
     // verifies a practice task is rejected when its due date equals the lesson time
     @Test
-    func assignPracticeTask_fails_whenDueDateEqualsLessonTime() throws {
+    func assignPracticeTask_fails_whenDueDateEqualsLessonTime() async throws {
 
         let container = try makeContainer()
 
@@ -438,9 +438,9 @@ struct LessonManagmentAppTests {
             teacherID: teacherID
         )
 
-        #expect(throws: AssignPracticeTaskError.self) {
+        await #expect(throws: AssignPracticeTaskError.self) {
 
-            try viewModel.assignTask(
+            try await viewModel.assignTask(
                 title: "Practise Scale",
                 description: "",
                 studentID: studentID,

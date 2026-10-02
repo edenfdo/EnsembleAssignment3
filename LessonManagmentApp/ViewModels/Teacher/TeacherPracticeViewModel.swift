@@ -20,6 +20,9 @@ final class TeacherPracticeViewModel: ObservableObject {
     
     private let assignPracticeTaskUseCase: AssignPracticeTaskUseCase
 
+    
+    private let savePracticeTaskToCloudUseCase:
+        SavePracticeTaskToCloudUseCase
     // creates the view model with access to practice task, user and lesson data
     init(
         practiceTaskRepository: PracticeTaskRepository,
@@ -33,6 +36,16 @@ final class TeacherPracticeViewModel: ObservableObject {
             AssignPracticeTaskUseCase(
                 practiceTaskRepository: practiceTaskRepository,
                 lessonRepository: lessonRepository
+            )
+        
+        self.savePracticeTaskToCloudUseCase =
+            SavePracticeTaskToCloudUseCase(
+                practiceTaskRepository:
+                    SupabasePracticeTaskRepository(),
+                userRepository:
+                    SupabaseUserRepository(),
+                lessonRepository:
+                    SupabaseLessonRepository()
             )
     }
 
@@ -61,7 +74,7 @@ final class TeacherPracticeViewModel: ObservableObject {
                 }
     }
 
-    // assigns a practice task through the practice task use case
+    // assigns a practice task locally and saves it to Supabase
     func assignTask(
         title: String,
         description: String,
@@ -69,7 +82,23 @@ final class TeacherPracticeViewModel: ObservableObject {
         teacherID: UUID,
         lessonID: UUID,
         dueDate: Date?
-    ) throws {
+    ) async throws {
+
+        guard let student =
+            students.first(where: {
+                $0.id == studentID
+            })
+        else {
+            return
+        }
+
+        // stores existing task IDs so the new task can be identified
+        let existingTaskIDs =
+            Set(
+                tasks.map {
+                    $0.id
+                }
+            )
 
         try assignPracticeTaskUseCase.execute(
             title: title,
@@ -82,6 +111,20 @@ final class TeacherPracticeViewModel: ObservableObject {
 
         loadData(
             teacherID: teacherID
+        )
+
+        // finds the task that was just created
+        guard let newTask =
+            tasks.first(where: {
+                !existingTaskIDs.contains($0.id)
+            })
+        else {
+            return
+        }
+
+        try await savePracticeTaskToCloudUseCase.execute(
+            task: newTask,
+            studentEmail: student.email
         )
     }
 
