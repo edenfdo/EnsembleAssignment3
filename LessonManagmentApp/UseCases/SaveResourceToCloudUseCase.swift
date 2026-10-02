@@ -136,4 +136,81 @@ struct SaveResourceToCloudUseCase {
             throw error
         }
     }
+    
+    // updates an existing resource title in Supabase
+    func updateTitle(
+        resourceID: UUID,
+        title: String
+    ) async throws {
+
+        try await resourceRepository.updateTitle(
+            id: resourceID,
+            title: title
+        )
+    }
+    
+    // replaces an existing resource file in Supabase
+    func replaceFile(
+        resourceID: UUID,
+        title: String,
+        fileName: String,
+        fileType: ResourceFileType,
+        fileData: Data,
+        contentType: String
+    ) async throws {
+
+        let cloudResources =
+            try await resourceRepository.getResources()
+
+        guard let cloudResource =
+            cloudResources.first(where: {
+                $0.id == resourceID
+            })
+        else {
+            return
+        }
+
+        let replacementID =
+            UUID().uuidString.lowercased()
+
+        let newStoragePath =
+            "\(cloudResource.teacherID.uuidString.lowercased())/" +
+            "\(cloudResource.studentID.uuidString.lowercased())/" +
+            "\(resourceID.uuidString.lowercased())/" +
+            "\(replacementID)-\(fileName)"
+
+        // uploads the replacement before changing the database record
+        try await resourceRepository.uploadFile(
+            data: fileData,
+            storagePath: newStoragePath,
+            contentType: contentType
+        )
+
+        do {
+
+            // points the existing resource record to the replacement file
+            try await resourceRepository.updateFile(
+                id: resourceID,
+                title: title,
+                fileName: fileName,
+                fileType: fileType.rawValue,
+                storagePath: newStoragePath
+            )
+
+        } catch {
+
+            // removes the new upload if the database update fails
+            try? await resourceRepository.deleteFile(
+                storagePath: newStoragePath
+            )
+
+            throw error
+        }
+
+        // removes the previous file after the replacement succeeds
+        try? await resourceRepository.deleteFile(
+            storagePath: cloudResource.storagePath
+        )
+    }
+    
 }

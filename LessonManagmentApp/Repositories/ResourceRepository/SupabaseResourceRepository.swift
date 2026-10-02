@@ -64,6 +64,48 @@ final class SupabaseResourceRepository {
             )
             .execute()
     }
+    
+    // updates a resource title in Supabase
+    func updateTitle(
+        id: UUID,
+        title: String
+    ) async throws {
+
+        try await SupabaseService.client
+            .from("resources")
+            .update([
+                "title": title
+            ])
+            .eq(
+                "id",
+                value: id.uuidString
+            )
+            .execute()
+    }
+    
+    // updates a resource file and its metadata in Supabase
+    func updateFile(
+        id: UUID,
+        title: String,
+        fileName: String,
+        fileType: String,
+        storagePath: String
+    ) async throws {
+
+        try await SupabaseService.client
+            .from("resources")
+            .update([
+                "title": title,
+                "file_name": fileName,
+                "file_type": fileType,
+                "storage_path": storagePath
+            ])
+            .eq(
+                "id",
+                value: id.uuidString
+            )
+            .execute()
+    }
 
     // deletes resource metadata from Supabase
     func deleteResource(

@@ -52,9 +52,7 @@ struct SyncStudentResourcesUseCase {
         let cloudResources =
             try await cloudResourceRepository
                 .getResources()
-        print(
-            "Cloud resources found: \(cloudResources.count)"
-        )
+        
 
         let localUsers =
             localUserRepository
@@ -75,9 +73,7 @@ struct SyncStudentResourcesUseCase {
 
         // adds new resources and updates existing cloud resources
         for cloudResource in cloudResources {
-            print(
-                "Syncing resource: \(cloudResource.title)"
-            )
+           
             guard let cloudTeacher =
                 try await cloudUserRepository
                     .getProfile(
@@ -108,9 +104,7 @@ struct SyncStudentResourcesUseCase {
                         storagePath:
                             cloudResource.storagePath
                     )
-            print(
-                "Downloaded resource file: \(fileData.count) bytes"
-            )
+            
 
             let localResources =
                 localResourceRepository

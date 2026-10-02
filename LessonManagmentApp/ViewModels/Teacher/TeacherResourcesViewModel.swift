@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UniformTypeIdentifiers
 
 final class TeacherResourcesViewModel: ObservableObject {
 
@@ -186,47 +187,111 @@ final class TeacherResourcesViewModel: ObservableObject {
         }
     }
     
-    // updates a resource and replaces its stored file if a new file is selected
+    // updates a resource locally and in Supabase
     func updateResource(
         resource: Resource,
         title: String,
         selectedFileURL: URL?,
         teacherID: UUID
-    ) throws {
+    ) async throws {
 
-        resource.title = title
+        // updates only the title when no replacement file was selected
+        guard let selectedFileURL else {
 
-        // replaces the existing file only when a new file is selected
-        if let selectedFileURL {
+            try await saveResourceToCloudUseCase.updateTitle(
+                resourceID: resource.id,
+                title: title
+            )
 
-            let accessing =
+            resource.title = title
+
+            resourceRepository.updateResource(
+                resource
+            )
+
+            loadData(
+                teacherID: teacherID
+            )
+
+            return
+        }
+
+        // gains temporary access to the replacement file
+        let accessing =
+            selectedFileURL
+                .startAccessingSecurityScopedResource()
+
+        let fileData: Data
+
+        do {
+
+            fileData =
+                try Data(
+                    contentsOf: selectedFileURL
+                )
+
+        } catch {
+
+            if accessing {
                 selectedFileURL
-                    .startAccessingSecurityScopedResource()
-
-            defer {
-
-                if accessing {
-                    selectedFileURL
-                        .stopAccessingSecurityScopedResource()
-                }
+                    .stopAccessingSecurityScopedResource()
             }
 
-            let savedFileName =
-                try ResourceFileStorage
-                    .replaceFile(
-                        from: selectedFileURL,
-                        resourceID: resource.id,
-                        oldFileName: resource.fileName
-                    )
-
-            resource.fileName =
-                savedFileName
-
-            resource.fileType =
-                determineFileType(
-                    url: selectedFileURL
-                )
+            throw error
         }
+
+        if accessing {
+            selectedFileURL
+                .stopAccessingSecurityScopedResource()
+        }
+
+        let newFileName =
+            selectedFileURL.lastPathComponent
+
+        let newFileType =
+            determineFileType(
+                url: selectedFileURL
+            )
+
+        let fileExtension =
+            selectedFileURL.pathExtension
+
+        let contentType =
+            UTType(
+                filenameExtension: fileExtension
+            )?
+            .preferredMIMEType
+            ?? "application/octet-stream"
+
+        // replaces the cloud file before changing the local resource
+        try await saveResourceToCloudUseCase.replaceFile(
+            resourceID: resource.id,
+            title: title,
+            fileName: newFileName,
+            fileType: newFileType,
+            fileData: fileData,
+            contentType: contentType
+        )
+
+        let oldFileName =
+            resource.fileName
+
+        // removes Daniel's previous local file
+        try ResourceFileStorage.deleteFile(
+            resourceID: resource.id,
+            fileName: oldFileName
+        )
+
+        // saves the replacement file locally
+        try ResourceFileStorage.saveData(
+            fileData,
+            resourceID: resource.id,
+            fileName: newFileName
+        )
+
+        resource.title = title
+        resource.fileName = newFileName
+        resource.fileType = newFileType
 
         resourceRepository.updateResource(
             resource

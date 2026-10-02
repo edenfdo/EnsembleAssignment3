@@ -274,13 +274,12 @@ struct EditResourceView: View {
         }
     }
 
-    // validates the title and updates the resource with any selected replacement file
+    // validates the title and updates the resource
     private func saveChanges() {
 
         let cleanedTitle =
             title.trimmingCharacters(
-                in:
-                    .whitespacesAndNewlines
+                in: .whitespacesAndNewlines
             )
 
         guard !cleanedTitle.isEmpty
@@ -292,24 +291,30 @@ struct EditResourceView: View {
             return
         }
 
-        do {
+        Task {
 
-            // updates the resource and replaces the file only if a new file was selected
-            try viewModel.updateResource(
-                resource: resource,
-                title: cleanedTitle,
-                selectedFileURL:
-                    selectedFileURL,
-                teacherID:
-                    teacher.id
-            )
+            do {
 
-            dismiss()
+                try await viewModel.updateResource(
+                    resource: resource,
+                    title: cleanedTitle,
+                    selectedFileURL:
+                        selectedFileURL,
+                    teacherID:
+                        teacher.id
+                )
 
-        } catch {
+                dismiss()
 
-            errorMessage =
-                "Unable to update resource: \(error.localizedDescription)"
+            } catch {
+
+                errorMessage =
+                    "Unable to update resource: \(error.localizedDescription)"
+
+                print(
+                    "Failed to update resource: \(error)"
+                )
+            }
         }
     }
 }
