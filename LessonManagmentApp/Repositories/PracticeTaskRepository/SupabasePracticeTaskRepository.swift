@@ -10,6 +10,27 @@ import Supabase
 
 final class SupabasePracticeTaskRepository {
 
+    
+    private struct CompletionUpdate: Encodable {
+
+        let isCompleted: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case isCompleted = "is_completed"
+        }
+    }
+    
+    private struct CompletionResult: Decodable {
+
+        let id: UUID
+        let isCompleted: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case isCompleted = "is_completed"
+        }
+    }
+    
     // adds a practice task to the Supabase database
     func addTask(
         _ task: SupabasePracticeTask
@@ -21,6 +42,7 @@ final class SupabasePracticeTaskRepository {
             .execute()
     }
 
+    
     // retrieves practice tasks available to the authenticated user
     func getTasks() async throws -> [SupabasePracticeTask] {
 
@@ -64,6 +86,37 @@ final class SupabasePracticeTaskRepository {
             .execute()
     }
 
+    // updates a practice task's completion status
+    func updateCompletion(
+        id: UUID,
+        isCompleted: Bool
+    ) async throws {
+
+        let update =
+            CompletionUpdate(
+                isCompleted: isCompleted
+            )
+
+        let results: [CompletionResult] =
+            try await SupabaseService.client
+                .from("practice_tasks")
+                .update(update)
+                .eq("id", value: id.uuidString)
+                .select("id, is_completed")
+                .execute()
+                .value
+
+        print("Task ID sent to Supabase: \(id)")
+        print("Completion sent to Supabase: \(isCompleted)")
+        print("Updated rows returned: \(results.count)")
+
+        if let result = results.first {
+            print(
+                "Supabase returned is_completed: \(result.isCompleted)"
+            )
+        }
+    }
+    
     // deletes a practice task from the Supabase database
     func deleteTask(
         id: UUID

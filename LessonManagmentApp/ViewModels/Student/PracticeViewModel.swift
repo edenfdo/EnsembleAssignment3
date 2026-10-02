@@ -19,6 +19,9 @@ class PracticeViewModel: ObservableObject {
     private let syncStudentPracticeTasksUseCase:
         SyncStudentPracticeTasksUseCase
     
+    private let updatePracticeTaskCompletionUseCase:
+        UpdatePracticeTaskCompletionUseCase
+    
     // creates the view model with access to practice task and lesson data
     init(
         practiceTaskRepository: PracticeTaskRepository,
@@ -42,6 +45,12 @@ class PracticeViewModel: ObservableObject {
                     practiceTaskRepository,
                 localUserRepository:
                     userRepository
+            )
+        
+        self.updatePracticeTaskCompletionUseCase =
+            UpdatePracticeTaskCompletionUseCase(
+                practiceTaskRepository:
+                    SupabasePracticeTaskRepository()
             )
     }
 
@@ -88,7 +97,7 @@ class PracticeViewModel: ObservableObject {
                 )
     }
 
-    // toggles a task's completion status and saves the change
+    // toggles a task's completion status locally and updates Supabase
     func toggleTaskCompletion(
         _ task: PracticeTask
     ) {
@@ -98,6 +107,22 @@ class PracticeViewModel: ObservableObject {
         practiceTaskRepository.updateTask(
             task
         )
+
+        let newCompletionStatus =
+            task.isCompleted
+
+        Task {
+            do {
+                try await updatePracticeTaskCompletionUseCase.execute(
+                    taskID: task.id,
+                    isCompleted: newCompletionStatus
+                )
+            } catch {
+                print(
+                    "Failed to update practice task completion: \(error)"
+                )
+            }
+        }
     }
 
     // calculates the number of completed practice tasks
