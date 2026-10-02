@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 enum SaveResourceToCloudError: Error {
     case studentProfileNotFound
     case lessonNotFound
+    case resourceNotFound
 }
 
 struct SaveResourceToCloudUseCase {
@@ -210,6 +211,33 @@ struct SaveResourceToCloudUseCase {
         // removes the previous file after the replacement succeeds
         try? await resourceRepository.deleteFile(
             storagePath: cloudResource.storagePath
+        )
+    }
+    
+    // deletes a resource and its stored file from Supabase
+    func deleteResource(
+        resourceID: UUID
+    ) async throws {
+
+        let cloudResources =
+            try await resourceRepository.getResources()
+
+        guard let cloudResource =
+            cloudResources.first(where: {
+                $0.id == resourceID
+            })
+        else {
+            throw SaveResourceToCloudError.resourceNotFound
+        }
+
+        // deletes the stored PDF or image first
+        try await resourceRepository.deleteFile(
+            storagePath: cloudResource.storagePath
+        )
+
+        // deletes the resource metadata after the file is removed
+        try await resourceRepository.deleteResource(
+            id: resourceID
         )
     }
     

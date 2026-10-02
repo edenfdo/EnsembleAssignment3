@@ -188,10 +188,15 @@ struct TeacherResourcesView: View {
 
                 if let resource = resourceToDelete {
 
-                    viewModel.deleteResource(
-                        resource,
-                        teacherID: teacher.id
-                    )
+                    Task {
+
+                        await viewModel.deleteResource(
+                            resource,
+                            teacherID: teacher.id
+                        )
+
+                        resourceToDelete = nil
+                    }
                 }
 
                 resourceToDelete = nil

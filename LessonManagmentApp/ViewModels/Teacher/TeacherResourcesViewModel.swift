@@ -302,13 +302,18 @@ final class TeacherResourcesViewModel: ObservableObject {
         )
     }
     
-    // deletes the stored file and its resource record
+    // deletes a resource from Supabase and local storage
     func deleteResource(
         _ resource: Resource,
         teacherID: UUID
-    ) {
+    ) async {
 
         do {
+
+            // deletes the cloud resource before removing the local copy
+            try await saveResourceToCloudUseCase.deleteResource(
+                resourceID: resource.id
+            )
 
             try ResourceFileStorage.deleteFile(
                 resourceID: resource.id,
@@ -326,7 +331,7 @@ final class TeacherResourcesViewModel: ObservableObject {
         } catch {
 
             print(
-                "Failed to delete resource file: \(error)"
+                "Failed to delete resource: \(error)"
             )
         }
     }
