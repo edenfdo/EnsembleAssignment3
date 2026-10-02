@@ -92,9 +92,12 @@ struct TeacherPracticeView: View {
             .padding()
         }
         .onAppear {
-            viewModel.loadData(
-                teacherID: teacher.id
-            )
+
+            Task {
+                await viewModel.syncTasks(
+                    teacherID: teacher.id
+                )
+            }
         }
         .sheet(
             isPresented: $showAssignTaskSheet
