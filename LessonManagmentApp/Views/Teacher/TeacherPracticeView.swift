@@ -17,6 +17,8 @@ struct TeacherPracticeView: View {
     @StateObject var viewModel: TeacherPracticeViewModel
 
     @State private var showAssignTaskSheet = false
+    
+    @State private var taskToDelete: PracticeTask?
 
     var body: some View {
 
@@ -105,6 +107,54 @@ struct TeacherPracticeView: View {
             AssignPracticeTaskView(
                 teacher: teacher,
                 viewModel: viewModel
+            )
+        }
+        .alert(
+            "Delete Practice Task?",
+            isPresented: Binding(
+                get: {
+                    taskToDelete != nil
+                },
+                set: { newValue in
+                    if !newValue {
+                        taskToDelete = nil
+                    }
+                }
+            )
+        ) {
+
+            Button(
+                "Cancel",
+                role: .cancel
+            ) {
+                taskToDelete = nil
+            }
+
+            Button(
+                "Delete",
+                role: .destructive
+            ) {
+
+                guard let task =
+                    taskToDelete
+                else {
+                    return
+                }
+
+                Task {
+                    await viewModel.deleteTask(
+                        task,
+                        teacherID: teacher.id
+                    )
+
+                    taskToDelete = nil
+                }
+            }
+
+        } message: {
+
+            Text(
+                "This practice task will be removed for the student."
             )
         }
     }
@@ -202,6 +252,31 @@ struct TeacherPracticeView: View {
                 }
 
                 Spacer()
+
+                Menu {
+
+                    Button(
+                        role: .destructive
+                    ) {
+
+                        taskToDelete = task
+
+                    } label: {
+
+                        Label(
+                            "Delete",
+                            systemImage: "trash"
+                        )
+                    }
+
+                } label: {
+
+                    Image(
+                        systemName: "ellipsis"
+                    )
+                    .foregroundStyle(.secondary)
+                    .padding(8)
+                }
             }
 
             Text(

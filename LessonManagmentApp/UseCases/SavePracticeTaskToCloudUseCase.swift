@@ -93,4 +93,14 @@ struct SavePracticeTaskToCloudUseCase {
             cloudTask
         )
     }
+    
+    // deletes a practice task from Supabase
+    func delete(
+        taskID: UUID
+    ) async throws {
+
+        try await practiceTaskRepository.deleteTask(
+            id: taskID
+        )
+    }
 }

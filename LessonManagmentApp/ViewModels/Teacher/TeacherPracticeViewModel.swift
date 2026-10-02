@@ -168,6 +168,32 @@ final class TeacherPracticeViewModel: ObservableObject {
         )
     }
 
+    // deletes a practice task from Supabase and local SwiftData
+    func deleteTask(
+        _ task: PracticeTask,
+        teacherID: UUID
+    ) async {
+
+        do {
+            try await savePracticeTaskToCloudUseCase.delete(
+                taskID: task.id
+            )
+
+            practiceTaskRepository.deleteTask(
+                task
+            )
+
+            loadData(
+                teacherID: teacherID
+            )
+
+        } catch {
+            print(
+                "Failed to delete practice task: \(error)"
+            )
+        }
+    }
+    
     // finds the student assigned to a specific practice task
     func studentForTask(
         _ task: PracticeTask
