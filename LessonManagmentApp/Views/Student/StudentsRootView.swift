@@ -206,7 +206,8 @@ struct StudentRootView: View {
                 selectedSection: $selectedSection,
                 viewModel: StudentResourcesViewModel(
                     resourceRepository: resourceRepository,
-                    lessonRepository: lessonRepository
+                    lessonRepository: lessonRepository,
+                    userRepository: userRepository
                 ),
                 studentID: student.id,
                 resourceToOpen: $resourceToOpen

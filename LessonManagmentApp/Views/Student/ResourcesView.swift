@@ -213,9 +213,12 @@ struct ResourcesView: View {
                 
         .onAppear {
 
-            viewModel.loadResources(
-                studentID: studentID
-            )
+            Task {
+
+                await viewModel.syncResources(
+                    studentID: studentID
+                )
+            }
 
             if let resource =
                 resourceToOpen {
@@ -399,13 +402,20 @@ struct ResourcesView: View {
                 modelContext: container.mainContext
             )
 
+        
+        let userRepository =
+            LocalUserRepository(
+                modelContext: container.mainContext
+            )
+        
         ResourcesView(
             showMenu: $showMenu,
             selectedSection: $selectedSection,
             viewModel:
                 StudentResourcesViewModel(
                     resourceRepository: resourceRepository,
-                    lessonRepository: lessonRepository
+                    lessonRepository: lessonRepository,
+                    userRepository: userRepository
                 ),
             studentID: studentID,
             resourceToOpen: $resourceToOpen

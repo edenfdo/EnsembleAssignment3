@@ -254,31 +254,47 @@ struct AddResourceView: View {
     
     // validates the selected student and file before saving the resource
     private func addResource() {
-        
+
         guard
             let selectedStudentID,
             let selectedFileURL
         else {
             return
         }
-        
-        do {
-            
-            // saves the file and creates the linked resource record
-            try viewModel.addResource(
-                title: title,
-                selectedFileURL: selectedFileURL,
-                studentID: selectedStudentID,
-                lessonID: selectedLessonID,
-                teacher: teacher
-            )
-            
-            dismiss()
-            
-        } catch {
-            
-            errorMessage =
-            "The selected file could not be saved."
+
+        Task {
+
+            do {
+
+                try await viewModel.addResource(
+                    title: title,
+                    selectedFileURL: selectedFileURL,
+                    studentID: selectedStudentID,
+                    lessonID: selectedLessonID,
+                    teacher: teacher
+                )
+
+                dismiss()
+
+            } catch SaveResourceToCloudError.studentProfileNotFound {
+
+                errorMessage =
+                    "The selected student's cloud profile could not be found."
+
+            } catch SaveResourceToCloudError.lessonNotFound {
+
+                errorMessage =
+                    "This lesson has not been synced to the cloud yet."
+
+            } catch {
+
+                errorMessage =
+                    "The selected resource could not be saved."
+
+                print(
+                    "Failed to add resource: \(error)"
+                )
+            }
         }
     }
 }

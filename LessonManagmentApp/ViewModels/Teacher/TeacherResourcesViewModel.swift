@@ -19,6 +19,9 @@ final class TeacherResourcesViewModel: ObservableObject {
 
     private let resourceRepository: ResourceRepository
     private let userRepository: UserRepository
+    
+    private let saveResourceToCloudUseCase:
+        SaveResourceToCloudUseCase
 
     // creates the view model with access to resource, user and lesson data
     init(
@@ -29,6 +32,16 @@ final class TeacherResourcesViewModel: ObservableObject {
         self.resourceRepository = resourceRepository
         self.userRepository = userRepository
         self.lessonRepository = lessonRepository
+        
+        self.saveResourceToCloudUseCase =
+            SaveResourceToCloudUseCase(
+                resourceRepository:
+                    SupabaseResourceRepository(),
+                userRepository:
+                    SupabaseUserRepository(),
+                lessonRepository:
+                    SupabaseLessonRepository()
+            )
     }
 
     // loads the teacher's students, lessons and resources
@@ -58,14 +71,22 @@ final class TeacherResourcesViewModel: ObservableObject {
                 }
     }
 
-    // saves a selected file and creates a resource linked to the chosen student and lesson
+    // saves a selected file locally and uploads the resource to Supabase
     func addResource(
         title: String,
         selectedFileURL: URL,
         studentID: UUID,
         lessonID: UUID?,
         teacher: User
-    ) throws {
+    ) async throws {
+
+        guard let student =
+            students.first(where: {
+                $0.id == studentID
+            })
+        else {
+            return
+        }
 
         let resourceID = UUID()
 
@@ -73,7 +94,7 @@ final class TeacherResourcesViewModel: ObservableObject {
         let accessing =
             selectedFileURL
                 .startAccessingSecurityScopedResource()
-        
+
         // stops file access when this function finishes
         defer {
             if accessing {
@@ -81,6 +102,12 @@ final class TeacherResourcesViewModel: ObservableObject {
                     .stopAccessingSecurityScopedResource()
             }
         }
+
+        // reads the file while security-scoped access is available
+        let fileData =
+            try Data(
+                contentsOf: selectedFileURL
+            )
 
         // copies the selected file into the app's local storage
         let savedFileName =
@@ -95,24 +122,33 @@ final class TeacherResourcesViewModel: ObservableObject {
                 url: selectedFileURL
             )
 
-        let resource = Resource(
-            id: resourceID,
-            title: title,
-            teacherID: teacher.id,
-            studentID: studentID,
-            lessonID: lessonID,
-            teacherName: teacher.name,
-            datePosted: Date(),
-            fileName: savedFileName,
-            fileType: fileType
-        )
+        let resource =
+            Resource(
+                id: resourceID,
+                title: title,
+                teacherID: teacher.id,
+                studentID: studentID,
+                lessonID: lessonID,
+                teacherName: teacher.name,
+                datePosted: Date(),
+                fileName: savedFileName,
+                fileType: fileType
+            )
 
+        // saves the resource locally
         resourceRepository.addResource(
             resource
         )
 
         loadData(
             teacherID: teacher.id
+        )
+
+        // uploads the file and resource metadata to Supabase
+        try await saveResourceToCloudUseCase.execute(
+            resource: resource,
+            studentEmail: student.email,
+            fileData: fileData
         )
     }
 

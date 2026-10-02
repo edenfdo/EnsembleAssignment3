@@ -33,6 +33,7 @@ struct SyncStudentLessonsUseCase {
 
         let cloudLessons =
             try await cloudLessonRepository.getLessons()
+        
 
         let localUsers =
             localUserRepository.getAllUsers()

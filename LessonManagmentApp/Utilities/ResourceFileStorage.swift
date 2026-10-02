@@ -83,6 +83,79 @@ enum ResourceFileStorage {
         return sourceURL.lastPathComponent
     }
 
+    
+    // saves downloaded resource data into the app's Documents directory
+    static func saveData(
+        _ data: Data,
+        resourceID: UUID,
+        fileName: String
+    ) throws {
+
+        let fileManager = FileManager.default
+
+        let documentsURL =
+            fileManager.urls(
+                for: .documentDirectory,
+                in: .userDomainMask
+            ).first!
+
+        let resourcesFolder =
+            documentsURL
+                .appendingPathComponent(
+                    "Resources",
+                    isDirectory: true
+                )
+
+        // creates the main Resources folder if needed
+        if !fileManager.fileExists(
+            atPath: resourcesFolder.path
+        ) {
+
+            try fileManager.createDirectory(
+                at: resourcesFolder,
+                withIntermediateDirectories: true
+            )
+        }
+
+        let resourceFolder =
+            resourcesFolder
+                .appendingPathComponent(
+                    resourceID.uuidString,
+                    isDirectory: true
+                )
+
+        // creates a folder for the downloaded resource
+        if !fileManager.fileExists(
+            atPath: resourceFolder.path
+        ) {
+
+            try fileManager.createDirectory(
+                at: resourceFolder,
+                withIntermediateDirectories: true
+            )
+        }
+
+        let destinationURL =
+            resourceFolder
+                .appendingPathComponent(
+                    fileName
+                )
+
+        // replaces an existing copy of the file
+        if fileManager.fileExists(
+            atPath: destinationURL.path
+        ) {
+
+            try fileManager.removeItem(
+                at: destinationURL
+            )
+        }
+
+        try data.write(
+            to: destinationURL,
+            options: .atomic
+        )
+    }
 
     // builds the local file URL for a stored resource
     static func fileURL(
