@@ -26,7 +26,7 @@ struct SyncStudentLessonsUseCase {
         self.localUserRepository = localUserRepository
     }
 
-    // downloads the student's cloud lessons and saves missing lessons locally
+    // synchronises the student's cloud lessons with local SwiftData
     func execute(
         localStudentID: UUID
     ) async throws {
@@ -34,25 +34,23 @@ struct SyncStudentLessonsUseCase {
         let cloudLessons =
             try await cloudLessonRepository.getLessons()
 
-        let existingLessonIDs =
-            Set(
-                localLessonRepository
-                    .getAllLessons()
-                    .map {
-                        $0.id
-                    }
-            )
-
         let localUsers =
             localUserRepository.getAllUsers()
 
-        for cloudLesson in cloudLessons {
+        let previousCloudIDs =
+            LessonSyncStateService.getSyncedLessonIDs(
+                studentID: localStudentID
+            )
 
-            // avoids adding the same lesson more than once
-            guard !existingLessonIDs.contains(cloudLesson.id)
-            else {
-                continue
-            }
+        let currentCloudIDs =
+            Set(
+                cloudLessons.map {
+                    $0.id
+                }
+            )
+
+        // adds new lessons and updates existing cloud lessons
+        for cloudLesson in cloudLessons {
 
             guard let cloudTeacher =
                 try await cloudUserRepository.getProfile(
@@ -76,21 +74,89 @@ struct SyncStudentLessonsUseCase {
                 continue
             }
 
-            let localLesson =
-                Lesson(
-                    id: cloudLesson.id,
-                    title: cloudLesson.title,
-                    date: cloudLesson.date,
-                    durationMinutes: cloudLesson.durationMinutes,
-                    studentID: localStudentID,
-                    teacherID: localTeacher.id,
-                    notes: cloudLesson.notes,
-                    location: cloudLesson.location
+            let localLessons =
+                localLessonRepository.getAllLessons()
+
+            if let existingLesson =
+                localLessons.first(where: {
+                    $0.id == cloudLesson.id
+                }) {
+
+                existingLesson.title =
+                    cloudLesson.title
+
+                existingLesson.date =
+                    cloudLesson.date
+
+                existingLesson.durationMinutes =
+                    cloudLesson.durationMinutes
+
+                existingLesson.studentID =
+                    localStudentID
+
+                existingLesson.teacherID =
+                    localTeacher.id
+
+                existingLesson.notes =
+                    cloudLesson.notes
+
+                existingLesson.location =
+                    cloudLesson.location
+
+                localLessonRepository.updateLesson(
+                    existingLesson
                 )
 
-            localLessonRepository.addLesson(
-                localLesson
-            )
+            } else {
+
+                let localLesson =
+                    Lesson(
+                        id: cloudLesson.id,
+                        title: cloudLesson.title,
+                        date: cloudLesson.date,
+                        durationMinutes:
+                            cloudLesson.durationMinutes,
+                        studentID:
+                            localStudentID,
+                        teacherID:
+                            localTeacher.id,
+                        notes:
+                            cloudLesson.notes,
+                        location:
+                            cloudLesson.location
+                    )
+
+                localLessonRepository.addLesson(
+                    localLesson
+                )
+            }
         }
+
+        // finds cloud lessons that have since been deleted
+        let deletedCloudIDs =
+            previousCloudIDs.subtracting(
+                currentCloudIDs
+            )
+
+        for deletedID in deletedCloudIDs {
+
+            if let localLesson =
+                localLessonRepository
+                    .getAllLessons()
+                    .first(where: {
+                        $0.id == deletedID
+                    }) {
+
+                localLessonRepository.deleteLesson(
+                    localLesson
+                )
+            }
+        }
+
+        // remembers the current cloud state for the next sync
+        LessonSyncStateService.saveSyncedLessonIDs(
+            currentCloudIDs,
+            studentID: localStudentID
+        )
     }
 }

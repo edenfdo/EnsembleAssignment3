@@ -23,7 +23,7 @@ final class SupabaseUserRepository {
                 .lowercased()
 
         let profiles: [SupabaseProfile] =
-            try await SupabaseService.client
+            try await SupabaseService.client //we have this/we can do this cause we have the superbase package in xcode
                 .from("profiles")
                 .select("id, name, email, role")
                 .eq(
