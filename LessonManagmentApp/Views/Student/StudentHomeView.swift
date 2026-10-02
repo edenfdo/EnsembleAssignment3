@@ -149,7 +149,11 @@ struct StudentHomeView: View {
                             
                             let wasCompleted = task.isCompleted
                             
-                            viewModel.toggleTaskCompletion(task)
+                            Task {
+                                await viewModel.toggleTaskCompletion(
+                                    task
+                                )
+                            }
                             
                             if !wasCompleted {
                                 

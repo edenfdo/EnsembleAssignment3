@@ -15,6 +15,9 @@ class StudentHomeViewModel: ObservableObject {
 
     private let lessonRepository: LessonRepository
     private let practiceTaskRepository: PracticeTaskRepository
+    
+    private let updatePracticeTaskCompletionUseCase:
+        UpdatePracticeTaskCompletionUseCase
 
     // creates the view model with access to lesson and practice task data
     init(
@@ -23,6 +26,12 @@ class StudentHomeViewModel: ObservableObject {
     ) {
         self.lessonRepository = lessonRepository
         self.practiceTaskRepository = practiceTaskRepository
+        
+        self.updatePracticeTaskCompletionUseCase =
+            UpdatePracticeTaskCompletionUseCase(
+                practiceTaskRepository:
+                    SupabasePracticeTaskRepository()
+            )
     }
 
     // loads the student's next upcoming lesson and practice tasks
@@ -41,14 +50,42 @@ class StudentHomeViewModel: ObservableObject {
             practiceTaskRepository.getTasks(forStudentID: studentID)
     }
     
-    // toggles a task's completion status and saves the change
-    func toggleTaskCompletion(_ task: PracticeTask) {
+    // toggles a task's completion status locally and in Supabase
+    func toggleTaskCompletion(
+        _ task: PracticeTask
+    ) async {
+
+        let previousCompletion =
+            task.isCompleted
 
         task.isCompleted.toggle()
 
-        practiceTaskRepository.updateTask(task)
-    }
+        practiceTaskRepository.updateTask(
+            task
+        )
 
+        do {
+
+            try await updatePracticeTaskCompletionUseCase.execute(
+                taskID: task.id,
+                isCompleted: task.isCompleted
+            )
+
+        } catch {
+
+            // restores the previous state if the cloud update fails
+            task.isCompleted =
+                previousCompletion
+
+            practiceTaskRepository.updateTask(
+                task
+            )
+
+            print(
+                "Failed to update practice task completion: \(error)"
+            )
+        }
+    }
     // calculates the student's practice progress as a value between 0 and 1
     var progress: Double {
 
