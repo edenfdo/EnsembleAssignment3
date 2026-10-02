@@ -190,7 +190,9 @@ struct StudentRootView: View {
                     practiceTaskRepository:
                         practiceTaskRepository,
                     lessonRepository:
-                        lessonRepository
+                        lessonRepository,
+                    userRepository:
+                        userRepository
                 ),
                 showMenu: $showMenu,
                 selectedSection: $selectedSection,

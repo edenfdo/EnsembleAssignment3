@@ -224,9 +224,11 @@ struct PracticeView: View {
         }
         .onAppear {
 
-            viewModel.loadTasks(
-                for: studentID
-            )
+            Task {
+                await viewModel.syncTasks(
+                    studentID: studentID
+                )
+            }
         }
     }
 }
@@ -236,6 +238,7 @@ struct PracticeView: View {
 private func makePreviewPracticeViewModel(
     repository: LocalPracticeTaskRepository,
     lessonRepository: LocalLessonRepository,
+    userRepository: LocalUserRepository,
     studentID: UUID,
     teacherID: UUID
 ) -> PracticeViewModel {
@@ -276,6 +279,7 @@ private func makePreviewPracticeViewModel(
         dueDate: Date().addingTimeInterval(259200),
         isCompleted: false
     )
+    
 
     repository.addTask(task1)
     repository.addTask(task2)
@@ -283,7 +287,8 @@ private func makePreviewPracticeViewModel(
 
     return PracticeViewModel(
         practiceTaskRepository: repository,
-        lessonRepository: lessonRepository
+        lessonRepository: lessonRepository,
+        userRepository: userRepository
     )
 }
 
@@ -302,6 +307,7 @@ private func makePreviewPracticeViewModel(
         for:
             PracticeTask.self,
             Lesson.self,
+            User.self,
         configurations:
             ModelConfiguration(
                 isStoredInMemoryOnly: true
@@ -318,10 +324,16 @@ private func makePreviewPracticeViewModel(
             modelContext: container.mainContext
         )
 
+    let userRepository =
+        LocalUserRepository(
+            modelContext: container.mainContext
+        )
+    
     let viewModel =
         makePreviewPracticeViewModel(
             repository: practiceTaskRepository,
             lessonRepository: lessonRepository,
+            userRepository: userRepository,
             studentID: studentID,
             teacherID: teacherID
         )

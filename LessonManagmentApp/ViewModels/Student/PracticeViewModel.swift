@@ -16,10 +16,14 @@ class PracticeViewModel: ObservableObject {
     private let practiceTaskRepository: PracticeTaskRepository
     private let lessonRepository: LessonRepository
 
+    private let syncStudentPracticeTasksUseCase:
+        SyncStudentPracticeTasksUseCase
+    
     // creates the view model with access to practice task and lesson data
     init(
         practiceTaskRepository: PracticeTaskRepository,
-        lessonRepository: LessonRepository
+        lessonRepository: LessonRepository,
+        userRepository: UserRepository
     ) {
 
         self.practiceTaskRepository =
@@ -27,8 +31,45 @@ class PracticeViewModel: ObservableObject {
 
         self.lessonRepository =
             lessonRepository
+        
+        self.syncStudentPracticeTasksUseCase =
+            SyncStudentPracticeTasksUseCase(
+                cloudPracticeTaskRepository:
+                    SupabasePracticeTaskRepository(),
+                cloudUserRepository:
+                    SupabaseUserRepository(),
+                localPracticeTaskRepository:
+                    practiceTaskRepository,
+                localUserRepository:
+                    userRepository
+            )
     }
 
+    // synchronises cloud practice tasks before loading local data
+    func syncTasks(
+        studentID: UUID
+    ) async {
+
+        do {
+            try await syncStudentPracticeTasksUseCase.execute(
+                localStudentID: studentID
+            )
+
+            loadTasks(
+                for: studentID
+            )
+
+        } catch {
+            print(
+                "Failed to sync student practice tasks: \(error)"
+            )
+
+            loadTasks(
+                for: studentID
+            )
+        }
+    }
+    
     // loads the student's practice tasks and lessons
     func loadTasks(
         for studentID: UUID
