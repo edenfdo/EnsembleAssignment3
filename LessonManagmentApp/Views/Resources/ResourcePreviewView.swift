@@ -13,6 +13,8 @@ struct ResourcePreviewView: View {
     let resource: Resource
     let subtitle: String
     let onClose: () -> Void
+    
+    @State private var showFileExporter = false
 
     var body: some View {
 
@@ -84,8 +86,23 @@ struct ResourcePreviewView: View {
                 Text(resource.fileName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
 
                 Spacer()
+
+                Button {
+
+                    showFileExporter = true
+
+                } label: {
+
+                    Label(
+                        "Save to Files",
+                        systemImage: "square.and.arrow.down"
+                    )
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                }
             }
         }
         .padding()
@@ -98,6 +115,13 @@ struct ResourcePreviewView: View {
         .cornerRadius(18)
         .shadow(radius: 12)
         .padding()
+        .sheet(
+            isPresented: $showFileExporter
+        ) {
+            FileExportView(
+                fileURL: resource.localFileURL
+            )
+        }
     }
 
     // loads and displays an image resource from local storage
