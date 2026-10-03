@@ -8,59 +8,62 @@
 import SwiftUI
 
 struct TeacherPracticeView: View {
-
+    
     @Binding var showMenu: Bool
     @Binding var selectedSection: TeacherSection
-
+    
     let teacher: User
     
     @StateObject var viewModel: TeacherPracticeViewModel
-
+    
     @State private var showAssignTaskSheet = false
     
+    @State private var taskToEdit: PracticeTask?
+    
     @State private var taskToDelete: PracticeTask?
-
+    
+    
     var body: some View {
-
+        
         ScrollView {
-
+            
             VStack(
                 alignment: .leading,
                 spacing: 20
             ) {
-
-
+                
+                
                 MenuBarView(
                     showMenu: $showMenu,
                     onLogoTap: {
                         selectedSection = .home
                     }
                 )
-
-
+                
+                
                 Text("Practice Tasks")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-
+                
                 Text(
                     "Create and manage practice tasks for your students."
                 )
                 .foregroundStyle(.secondary)
-
-
+                
+                
                 Button {
-
+                    
                     showAssignTaskSheet = true
-
+                    
                 } label: {
-
+                    
                     HStack {
-
+                        
                         Image(systemName: "plus")
-
+                        
                         Text("Assign Practice Task")
                             .fontWeight(.semibold)
-
+                        
                         Spacer()
                     }
                     .padding()
@@ -69,32 +72,32 @@ struct TeacherPracticeView: View {
                     .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
-
-
+                
+                
                 Text("Assigned Tasks")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.top, 4)
-
+                
                 if viewModel.tasks.isEmpty {
-
+                    
                     Text("No practice tasks assigned.")
                         .foregroundStyle(.secondary)
-
+                    
                 } else {
-
+                    
                     ForEach(viewModel.tasks, id: \.id) { task in
-
+                        
                         taskCard(task)
                     }
                 }
-
+                
                 Spacer()
             }
             .padding()
         }
         .onAppear {
-
+            
             Task {
                 await viewModel.syncTasks(
                     teacherID: teacher.id
@@ -106,6 +109,16 @@ struct TeacherPracticeView: View {
         ) {
             AssignPracticeTaskView(
                 teacher: teacher,
+                viewModel: viewModel
+            )
+        }
+        .sheet(
+            item: $taskToEdit
+        ) { task in
+            
+            EditPracticeTaskView(
+                teacher: teacher,
+                task: task,
                 viewModel: viewModel
             )
         }
@@ -122,64 +135,64 @@ struct TeacherPracticeView: View {
                 }
             )
         ) {
-
+            
             Button(
                 "Cancel",
                 role: .cancel
             ) {
                 taskToDelete = nil
             }
-
+            
             Button(
                 "Delete",
                 role: .destructive
             ) {
-
+                
                 guard let task =
-                    taskToDelete
+                        taskToDelete
                 else {
                     return
                 }
-
+                
                 Task {
                     await viewModel.deleteTask(
                         task,
                         teacherID: teacher.id
                     )
-
+                    
                     taskToDelete = nil
                 }
             }
-
+            
         } message: {
-
+            
             Text(
                 "This practice task will be removed for the student."
             )
         }
     }
-
-
+    
+    
     // builds the reusable card layout for each practice task
     private func taskCard(
         _ task: PracticeTask
     ) -> some View {
-
+        
         VStack(
             alignment: .leading,
             spacing: 10
         ) {
-
+            
             HStack(
                 alignment: .top,
                 spacing: 12
             ) {
-
+                
                 Image(
                     systemName:
                         task.isCompleted
-                        ? "checkmark.circle.fill"
-                        : "circle"
+                    ? "checkmark.circle.fill"
+                    : "circle"
                 )
                 .font(.title3)
                 .foregroundStyle(
@@ -191,58 +204,58 @@ struct TeacherPracticeView: View {
                     )
                     : .secondary
                 )
-
+                
                 VStack(
                     alignment: .leading,
                     spacing: 6
                 ) {
-
+                    
                     Text(task.title)
                         .font(.headline)
-
+                    
                     if !task.taskDescription
                         .trimmingCharacters(
                             in: .whitespacesAndNewlines
                         )
-                        .isEmpty {
-
+                            .isEmpty {
+                        
                         Text(
                             task.taskDescription
                         )
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     }
-
+                    
                     if let student =
                         viewModel.studentForTask(task) {
-
+                        
                         Text("Student: \(student.name)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-
+                    
                     if let lesson =
                         viewModel.lessons.first(
                             where: {
                                 $0.id == task.lessonID
                             }
                         ) {
-
+                        
                         Text(
                             "Lesson: \(lesson.title)"
                         )
                         .font(.caption)
                         .foregroundStyle(.secondary)
-
+                        
                         Text(
                             "Lesson Date: \(lesson.date.formatted(date: .abbreviated, time: .omitted))"
                         )
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     }
-
+                    
                     if let dueDate = task.dueDate {
-
+                        
                         Text(
                             "Due \(dueDate.formatted(date: .abbreviated, time: .omitted))"
                         )
@@ -250,27 +263,39 @@ struct TeacherPracticeView: View {
                         .foregroundStyle(.secondary)
                     }
                 }
-
+                
                 Spacer()
-
+                
                 Menu {
-
+                    
+                    Button {
+                        
+                        taskToEdit = task
+                        
+                    } label: {
+                        
+                        Label(
+                            "Edit",
+                            systemImage: "pencil"
+                        )
+                    }
+                    
                     Button(
                         role: .destructive
                     ) {
-
+                        
                         taskToDelete = task
-
+                        
                     } label: {
-
+                        
                         Label(
                             "Delete",
                             systemImage: "trash"
                         )
                     }
-
+                    
                 } label: {
-
+                    
                     Image(
                         systemName: "ellipsis"
                     )
@@ -278,7 +303,7 @@ struct TeacherPracticeView: View {
                     .padding(8)
                 }
             }
-
+            
             Text(
                 task.isCompleted
                 ? "Completed"
@@ -302,5 +327,4 @@ struct TeacherPracticeView: View {
         )
         .cornerRadius(14)
     }
-
 }

@@ -168,6 +168,83 @@ final class TeacherPracticeViewModel: ObservableObject {
         )
     }
 
+    
+    // updates an existing practice task in Supabase and local SwiftData
+    func updateTask(
+        _ task: PracticeTask,
+        title: String,
+        description: String,
+        studentID: UUID,
+        lessonID: UUID,
+        dueDate: Date?,
+        teacherID: UUID
+    ) async throws {
+
+        let cleanedTitle =
+            title.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+
+        guard !cleanedTitle.isEmpty else {
+            throw AssignPracticeTaskError.missingTitle
+        }
+
+        guard let student =
+            students.first(where: {
+                $0.id == studentID
+            })
+        else {
+            throw SavePracticeTaskToCloudError
+                .studentProfileNotFound
+        }
+
+        guard let lesson =
+            lessons.first(where: {
+                $0.id == lessonID
+            })
+        else {
+            throw AssignPracticeTaskError.lessonNotFound
+        }
+
+        // ensures the selected lesson belongs to the selected student
+        guard lesson.studentID == studentID else {
+            throw AssignPracticeTaskError.lessonNotFound
+        }
+
+        // ensures the due date occurs after the linked lesson
+        if let dueDate = dueDate {
+
+            guard dueDate > lesson.date else {
+                throw AssignPracticeTaskError.invalidDueDate
+            }
+        }
+
+        // update Supabase first
+        try await savePracticeTaskToCloudUseCase.update(
+            taskID: task.id,
+            title: cleanedTitle,
+            description: description,
+            studentEmail: student.email,
+            lessonID: lessonID,
+            dueDate: dueDate,
+            isCompleted: task.isCompleted
+        )
+
+        // only update SwiftData after the cloud update succeeds
+        task.title = cleanedTitle
+        task.taskDescription = description
+        task.studentID = studentID
+        task.lessonID = lessonID
+        task.dueDate = dueDate
+
+        practiceTaskRepository.updateTask(
+            task
+        )
+
+        loadData(
+            teacherID: teacherID
+        )
+    }
     // deletes a practice task from Supabase and local SwiftData
     func deleteTask(
         _ task: PracticeTask,

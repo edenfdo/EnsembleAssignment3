@@ -94,6 +94,58 @@ struct SavePracticeTaskToCloudUseCase {
         )
     }
     
+    
+    // updates an existing practice task in Supabase
+    func update(
+        taskID: UUID,
+        title: String,
+        description: String,
+        studentEmail: String,
+        lessonID: UUID,
+        dueDate: Date?,
+        isCompleted: Bool
+    ) async throws {
+
+        let authenticatedTeacher =
+            try await SupabaseService.client.auth.user()
+
+        guard let studentProfile =
+            try await userRepository.getProfile(
+                email: studentEmail
+            )
+        else {
+            throw SavePracticeTaskToCloudError
+                .studentProfileNotFound
+        }
+
+        let cloudLessons =
+            try await lessonRepository.getLessons()
+
+        guard cloudLessons.contains(where: {
+            $0.id == lessonID
+        })
+        else {
+            throw SavePracticeTaskToCloudError
+                .lessonNotFound
+        }
+
+        let cloudTask =
+            SupabasePracticeTask(
+                id: taskID,
+                title: title,
+                taskDescription: description,
+                studentID: studentProfile.id,
+                teacherID: authenticatedTeacher.id,
+                lessonID: lessonID,
+                dueDate: dueDate,
+                isCompleted: isCompleted
+            )
+
+        try await practiceTaskRepository.updateTask(
+            cloudTask
+        )
+    }
+    
     // deletes a practice task from Supabase
     func delete(
         taskID: UUID
