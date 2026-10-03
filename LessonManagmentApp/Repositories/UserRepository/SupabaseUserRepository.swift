@@ -99,6 +99,8 @@ final class SupabaseUserRepository {
 
         return students
     }
+    
+    
 
     // creates the student account and returns its temporary password
     func createStudent(

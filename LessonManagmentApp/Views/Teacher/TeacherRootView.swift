@@ -330,26 +330,77 @@ struct TeacherRootView: View {
     @MainActor
     private func refreshAllTeacherData() async {
 
+        let cloudUserRepository =
+            SupabaseUserRepository()
+
+        let syncStudents =
+            SyncTeacherStudentsUseCase(
+                cloudUserRepository:
+                    cloudUserRepository,
+                localUserRepository:
+                    userRepository
+            )
+
+        let syncLessons =
+            SyncTeacherLessonsUseCase(
+                cloudLessonRepository:
+                    SupabaseLessonRepository(),
+                cloudUserRepository:
+                    cloudUserRepository,
+                localLessonRepository:
+                    lessonRepository,
+                localUserRepository:
+                    userRepository
+            )
+
         let syncPracticeTasks =
             SyncTeacherPracticeTasksUseCase(
                 cloudPracticeTaskRepository:
                     SupabasePracticeTaskRepository(),
                 cloudUserRepository:
-                    SupabaseUserRepository(),
+                    cloudUserRepository,
                 localPracticeTaskRepository:
                     practiceTaskRepository,
                 localUserRepository:
                     userRepository
             )
 
+        let syncResources =
+            SyncTeacherResourcesUseCase(
+                cloudResourceRepository:
+                    SupabaseResourceRepository(),
+                cloudUserRepository:
+                    cloudUserRepository,
+                localResourceRepository:
+                    resourceRepository,
+                localUserRepository:
+                    userRepository
+            )
+
         do {
 
-            // gets the latest practice task changes from Supabase
+            // students must sync first so the remaining
+            // data can match cloud students to local students
+            try await syncStudents.execute()
+
+            // downloads the teacher's latest lessons
+            try await syncLessons.execute(
+                localTeacherID: teacher.id
+            )
+
+            // downloads the latest practice task changes
             try await syncPracticeTasks.execute(
                 localTeacherID: teacher.id
             )
 
-            // recreates the current page so it reads the updated SwiftData
+            // downloads the teacher's latest resources
+            // including the actual PDF or image files
+            try await syncResources.execute(
+                localTeacherID: teacher.id
+            )
+
+            // recreates the current page so it reads
+            // the updated SwiftData
             refreshID = UUID()
 
         } catch {
