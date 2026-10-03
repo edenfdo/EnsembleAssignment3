@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import UIKit
 
 struct AddStudentView: View {
 
@@ -148,7 +149,11 @@ struct AddStudentView: View {
             isPresented: $showAccountCreatedAlert
         ) {
 
-            Button("Done") {
+            Button("Copy Password & Done") {
+
+                UIPasteboard.general.string =
+                    temporaryPassword
+
                 dismiss()
             }
 
@@ -161,7 +166,7 @@ struct AddStudentView: View {
                 Temporary password:
                 \(temporaryPassword)
 
-                Give this password to the student. They will be asked to change it when they first log in.
+                Copy this password and give it to the student. They will be asked to change it when they first log in.
                 """
             )
         }
