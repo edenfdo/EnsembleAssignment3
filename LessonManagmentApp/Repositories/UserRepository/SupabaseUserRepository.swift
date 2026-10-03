@@ -8,6 +8,16 @@
 import Foundation
 import Supabase
 
+// response returned by the create-student Edge Function
+struct CreateStudentResponse: Decodable {
+    let id: UUID
+    let name: String
+    let email: String
+    let role: String
+    let mustChangePassword: Bool
+    let temporaryPassword: String
+}
+
 final class SupabaseUserRepository {
 
     // finds a Supabase profile using the user's email
@@ -23,9 +33,12 @@ final class SupabaseUserRepository {
                 .lowercased()
 
         let profiles: [SupabaseProfile] =
-            try await SupabaseService.client //we have this/we can do this cause we have the superbase package in xcode
+            // uses the shared Supabase client to access the profiles table
+            try await SupabaseService.client
                 .from("profiles")
-                .select("id, name, email, role")
+                .select(
+                    "id, name, email, role, must_change_password"
+                )
                 .eq(
                     "email",
                     value: normalizedEmail
@@ -44,7 +57,9 @@ final class SupabaseUserRepository {
         let profiles: [SupabaseProfile] =
             try await SupabaseService.client
                 .from("profiles")
-                .select("id, name, email, role")
+                .select(
+                    "id, name, email, role, must_change_password"
+                )
                 .eq(
                     "id",
                     value: id.uuidString
@@ -53,5 +68,67 @@ final class SupabaseUserRepository {
                 .value
 
         return profiles.first
+    }
+    
+   
+    // gets all students that belong to a specific teacher
+    func getStudents(
+        teacherID: UUID
+    ) async throws -> [SupabaseProfile] {
+
+        let students: [SupabaseProfile] =
+            try await SupabaseService.client
+                .from("profiles")
+                .select(
+                    "id, name, email, role, must_change_password"
+                )
+                .eq(
+                    "role",
+                    value: "student"
+                )
+                .eq(
+                    "teacher_id",
+                    value: teacherID.uuidString
+                )
+                .order(
+                    "name",
+                    ascending: true
+                )
+                .execute()
+                .value
+
+        return students
+    }
+
+    // creates the student account and returns its temporary password
+    func createStudent(
+        firstName: String,
+        lastName: String,
+        email: String
+    ) async throws -> CreateStudentResponse {
+
+        struct CreateStudentRequest: Encodable {
+            let firstName: String
+            let lastName: String
+            let email: String
+        }
+
+        let request = CreateStudentRequest(
+            firstName: firstName,
+            lastName: lastName,
+            email: email
+        )
+
+        let response: CreateStudentResponse =
+            try await SupabaseService.client
+                .functions
+                .invoke(
+                    "create-student",
+                    options: FunctionInvokeOptions(
+                        body: request
+                    )
+                )
+
+        return response
     }
 }

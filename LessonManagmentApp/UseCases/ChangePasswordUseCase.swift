@@ -33,24 +33,13 @@ struct ChangePasswordUseCase {
     }
 
 
-    // changes a user's password while enforcing password rules
+    // changes a user's Supabase password while enforcing password rules
     func execute(
         user: User,
         currentPassword: String,
         newPassword: String,
         confirmPassword: String
     ) async throws {
-
-        // checks that the current password is correct
-        guard PasswordHasher.verify(
-            password: currentPassword,
-            hash: user.passwordHash
-        ) else {
-
-            throw ChangePasswordError
-                .incorrectCurrentPassword
-        }
-
 
         // ensures the new password meets the minimum length
         guard newPassword.count >= 6 else {
@@ -59,7 +48,6 @@ struct ChangePasswordUseCase {
                 .passwordTooShort
         }
 
-
         // ensures both new password entries match
         guard newPassword == confirmPassword else {
 
@@ -67,20 +55,38 @@ struct ChangePasswordUseCase {
                 .passwordsDoNotMatch
         }
 
-        try await SupabaseService.client.auth.update(
-                    user: UserAttributes(
-                        password: newPassword
-                    )
+        let normalizedEmail =
+            user.email
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
                 )
-        
-        user.passwordHash =
-            PasswordHasher.hash(
-                newPassword
+                .lowercased()
+
+        do {
+
+            try await SupabaseService.client.auth.signIn(
+                email: normalizedEmail,
+                password: currentPassword
             )
 
+        } catch {
 
-        userRepository.updateUser(
-            user
+            throw ChangePasswordError
+                .incorrectCurrentPassword
+        }
+
+        // changes the password stored by Supabase Auth
+        try await SupabaseService.client.auth.update(
+            user: UserAttributes(
+                password: newPassword
+            )
         )
+
+        // tells the server that the required password change is complete
+        try await SupabaseService.client
+            .functions
+            .invoke(
+                "complete-password-change"
+            )
     }
 }

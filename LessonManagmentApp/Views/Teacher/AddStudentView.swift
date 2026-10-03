@@ -5,15 +5,20 @@
 //  Created by Eden Fernando on 12/9/2026.
 //
 
+
 import SwiftUI
 
 struct AddStudentView: View {
 
-    @State private var password = ""
-    
     @ObservedObject var viewModel: TeacherStudentsViewModel
-    
+
     @State private var showDuplicateEmailAlert = false
+    @State private var showAccountCreatedAlert = false
+
+    @State private var isCreating = false
+
+    @State private var temporaryPassword = ""
+    @State private var createdStudentName = ""
 
     @Environment(\.dismiss)
     private var dismiss
@@ -50,36 +55,50 @@ struct AddStudentView: View {
                     .keyboardType(
                         .emailAddress
                     )
-                    
-                    SecureField(
-                        "Password",
-                        text: $password
-                    )
                 }
 
                 Section {
 
                     Button {
 
-                        addStudent()
+                        Task {
+                            await createStudent()
+                        }
 
                     } label: {
 
-                        Text("Add Student")
-                            .fontWeight(
-                                .semibold
-                            )
-                            .frame(
-                                maxWidth:
-                                    .infinity
-                            )
+                        if isCreating {
+
+                            ProgressView()
+                                .frame(
+                                    maxWidth: .infinity
+                                )
+
+                        } else {
+
+                            Text("Create Student Account")
+                                .fontWeight(
+                                    .semibold
+                                )
+                                .frame(
+                                    maxWidth: .infinity
+                                )
+                        }
                     }
                     .disabled(
-                        firstName
-                            .trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            )
-                            .isEmpty
+                        (
+                            firstName
+                                .trimmingCharacters(
+                                    in: .whitespacesAndNewlines
+                                )
+                                .isEmpty
+                            &&
+                            lastName
+                                .trimmingCharacters(
+                                    in: .whitespacesAndNewlines
+                                )
+                                .isEmpty
+                        )
                         ||
                         email
                             .trimmingCharacters(
@@ -87,16 +106,12 @@ struct AddStudentView: View {
                             )
                             .isEmpty
                         ||
-                        password
-                            .trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            )
-                            .isEmpty
+                        isCreating
                     )
                 }
             }
             .navigationTitle(
-                "Add Student"
+                "Create Student Account"
             )
             .navigationBarTitleDisplayMode(
                 .inline
@@ -104,8 +119,7 @@ struct AddStudentView: View {
             .toolbar {
 
                 ToolbarItem(
-                    placement:
-                        .topBarLeading
+                    placement: .topBarLeading
                 ) {
 
                     Button("Cancel") {
@@ -114,6 +128,8 @@ struct AddStudentView: View {
                 }
             }
         }
+
+        // shown if the email already belongs to a local user
         .alert(
             "Email Already Exists",
             isPresented: $showDuplicateEmailAlert
@@ -121,23 +137,63 @@ struct AddStudentView: View {
             Button("OK", role: .cancel) {
             }
         } message: {
-            Text("An account with this email address already exists.")
+            Text(
+                "An account with this email address already exists."
+            )
+        }
+
+        // shown after Supabase successfully creates the account
+        .alert(
+            "Student Account Created",
+            isPresented: $showAccountCreatedAlert
+        ) {
+
+            Button("Done") {
+                dismiss()
+            }
+
+        } message: {
+
+            Text(
+                """
+                \(createdStudentName)'s account has been created.
+
+                Temporary password:
+                \(temporaryPassword)
+
+                Give this password to the student. They will be asked to change it when they first log in.
+                """
+            )
         }
     }
-    
-    // creates the student account using the entered details and closes the form
-    private func addStudent() {
+
+
+    // validates the details and creates the student's Supabase account
+    @MainActor
+    private func createStudent() async {
+
+        isCreating = true
+
+        defer {
+            isCreating = false
+        }
 
         do {
 
-            try viewModel.addStudent(
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                password: password
-            )
+            let student =
+                try await viewModel.addStudent(
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email
+                )
 
-            dismiss()
+            createdStudentName =
+                student.name
+
+            temporaryPassword =
+                student.temporaryPassword
+
+            showAccountCreatedAlert = true
 
         } catch AddStudentError.emailAlreadyExists {
 
@@ -155,16 +211,10 @@ struct AddStudentView: View {
                 "A valid email address is required."
             )
 
-        } catch AddStudentError.missingPassword {
-
-            print(
-                "Password is required."
-            )
-
         } catch {
 
             print(
-                "Failed to add student: \(error)"
+                "Failed to create student: \(error)"
             )
         }
     }

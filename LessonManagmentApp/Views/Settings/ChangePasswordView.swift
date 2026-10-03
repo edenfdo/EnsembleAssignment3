@@ -5,6 +5,7 @@
 //  Created by Eden Fernando on 12/9/2026.
 //
 
+
 import SwiftUI
 
 struct ChangePasswordView: View {
@@ -14,6 +15,15 @@ struct ChangePasswordView: View {
     @ObservedObject var viewModel:
         SettingsViewModel
 
+    // true when the student must change their temporary password
+    let isForcedChange: Bool
+
+    // used after a forced password change is completed
+    let onPasswordChanged: (() -> Void)?
+
+    // allows the user to leave the forced password screen safely
+    let onLogout: (() -> Void)?
+
     @Environment(\.dismiss)
     private var dismiss
 
@@ -21,16 +31,54 @@ struct ChangePasswordView: View {
     @State private var newPassword = ""
     @State private var confirmPassword = ""
 
+    init(
+        user: User,
+        viewModel: SettingsViewModel,
+        isForcedChange: Bool = false,
+        onPasswordChanged: (() -> Void)? = nil,
+        onLogout: (() -> Void)? = nil
+    ) {
+
+        self.user = user
+
+        self._viewModel =
+            ObservedObject(
+                wrappedValue: viewModel
+            )
+
+        self.isForcedChange =
+            isForcedChange
+
+        self.onPasswordChanged =
+            onPasswordChanged
+
+        self.onLogout =
+            onLogout
+    }
+
     var body: some View {
 
         NavigationStack {
 
             Form {
 
+                if isForcedChange {
+
+                    Section {
+
+                        Text(
+                            "You're currently using a temporary password. Create a new password before continuing."
+                        )
+                        .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("Password") {
 
                     SecureField(
-                        "Current password",
+                        isForcedChange
+                            ? "Temporary password"
+                            : "Current password",
                         text: $currentPassword
                     )
 
@@ -60,7 +108,6 @@ struct ChangePasswordView: View {
 
                     Button {
 
-                        // attempts to change the password and closes the form if successful
                         Task {
 
                             let success =
@@ -75,7 +122,15 @@ struct ChangePasswordView: View {
                                 )
 
                             if success {
-                                dismiss()
+
+                                if isForcedChange {
+
+                                    onPasswordChanged?()
+
+                                } else {
+
+                                    dismiss()
+                                }
                             }
                         }
 
@@ -88,21 +143,39 @@ struct ChangePasswordView: View {
                             )
                     }
                 }
+
+                if isForcedChange {
+
+                    Section {
+
+                        Button(
+                            "Sign Out",
+                            role: .destructive
+                        ) {
+                            onLogout?()
+                        }
+                    }
+                }
             }
             .navigationTitle(
-                "Change Password"
+                isForcedChange
+                    ? "Create New Password"
+                    : "Change Password"
             )
             .navigationBarTitleDisplayMode(
                 .inline
             )
             .toolbar {
 
-                ToolbarItem(
-                    placement: .topBarLeading
-                ) {
+                if !isForcedChange {
 
-                    Button("Cancel") {
-                        dismiss()
+                    ToolbarItem(
+                        placement: .topBarLeading
+                    ) {
+
+                        Button("Cancel") {
+                            dismiss()
+                        }
                     }
                 }
             }

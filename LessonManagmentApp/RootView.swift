@@ -41,38 +41,73 @@ struct RootView: View {
         
         Group {
             
-            // displays the correct app experience based on the logged-in user's role
             if let user = viewModel.currentUser {
-                
-                switch user.role {
-                    
-                case .student:
 
-                    StudentRootView(
-                        student: user,
-                        lessonRepository: lessonRepository,
-                        practiceTaskRepository: practiceTaskRepository,
-                        resourceRepository: resourceRepository,
-                        userRepository: userRepository,
+                // forces users with a temporary password
+                // to create a new password before entering the app
+                if viewModel.requiresPasswordChange {
+
+                    ChangePasswordView(
+                        user: user,
+                        viewModel:
+                            SettingsViewModel(
+                                userRepository:
+                                    userRepository
+                            ),
+                        isForcedChange: true,
+                        onPasswordChanged: {
+
+                            viewModel
+                                .completeRequiredPasswordChange()
+                        },
                         onLogout: {
+
                             viewModel.logout()
                         }
                     )
-                    
-                case .teacher:
-                    
-                    TeacherRootView(
-                        teacher: user,
-                        lessonRepository: lessonRepository,
-                        practiceTaskRepository: practiceTaskRepository,
-                        userRepository: userRepository,
-                        resourceRepository: resourceRepository,
-                        onLogout: {
-                            viewModel.logout()
-                        }
-                    )
+
+                } else {
+
+                    // displays the correct app experience
+                    // based on the logged-in user's role
+                    switch user.role {
+
+                    case .student:
+
+                        StudentRootView(
+                            student: user,
+                            lessonRepository:
+                                lessonRepository,
+                            practiceTaskRepository:
+                                practiceTaskRepository,
+                            resourceRepository:
+                                resourceRepository,
+                            userRepository:
+                                userRepository,
+                            onLogout: {
+                                viewModel.logout()
+                            }
+                        )
+
+                    case .teacher:
+
+                        TeacherRootView(
+                            teacher: user,
+                            lessonRepository:
+                                lessonRepository,
+                            practiceTaskRepository:
+                                practiceTaskRepository,
+                            userRepository:
+                                userRepository,
+                            resourceRepository:
+                                resourceRepository,
+                            onLogout: {
+                                viewModel.logout()
+                            }
+                        )
+                    }
                 }
-                
+
             } else {
                 
                 LoginView(
@@ -81,12 +116,16 @@ struct RootView: View {
                             userRepository:
                                 userRepository
                         )
-                ) { user in
-                    
+                ) { user, requiresPasswordChange in
+
                     viewModel.login(
                         user: user,
-                        userRepository: userRepository,
-                        lessonRepository: lessonRepository
+                        requiresPasswordChange:
+                            requiresPasswordChange,
+                        userRepository:
+                            userRepository,
+                        lessonRepository:
+                            lessonRepository
                     )
                 }
             }
@@ -126,7 +165,7 @@ struct RootView: View {
                 userRepository:
                     userRepository
             )
-    ) { user in
+    ) { user, _ in
 
         print(user.name)
     }

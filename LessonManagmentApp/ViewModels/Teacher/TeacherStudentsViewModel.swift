@@ -13,20 +13,25 @@ final class TeacherStudentsViewModel: ObservableObject {
     @Published var students: [User] = []
 
     private let userRepository: UserRepository
-    
+
     private let addStudentUseCase: AddStudentUseCase
+
+    private let supabaseUserRepository =
+        SupabaseUserRepository()
+
 
     // creates the view model with access to stored users
     init(
         userRepository: UserRepository
     ) {
         self.userRepository = userRepository
-        
+
         self.addStudentUseCase =
-                AddStudentUseCase(
-                    userRepository: userRepository
-                )
+            AddStudentUseCase(
+                userRepository: userRepository
+            )
     }
+
 
     // loads all students from the user repository
     func loadStudents() {
@@ -35,22 +40,29 @@ final class TeacherStudentsViewModel: ObservableObject {
             userRepository.getStudents()
     }
 
-    // creates a student account through the add student use case
+
+    // validates the student details and creates the student account
     func addStudent(
         firstName: String,
         lastName: String,
-        email: String,
-        password: String
-    ) throws {
+        email: String
+    ) async throws -> CreateStudentResponse {
 
+        // validates the student's details
         try addStudentUseCase.execute(
             firstName: firstName,
             lastName: lastName,
-            email: email,
-            password: password
+            email: email
         )
 
-        loadStudents()
+        // creates the account through Supabase
+        let student =
+            try await supabaseUserRepository.createStudent(
+                firstName: firstName,
+                lastName: lastName,
+                email: email
+            )
+
+        return student
     }
-    
 }

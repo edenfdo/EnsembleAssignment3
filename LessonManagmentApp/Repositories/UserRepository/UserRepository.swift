@@ -18,4 +18,6 @@ protocol UserRepository {
     func addUser(_ user: User)
     
     func updateUser(_ user: User)
+    
+    
 }

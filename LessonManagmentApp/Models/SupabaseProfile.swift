@@ -12,4 +12,13 @@ struct SupabaseProfile: Codable {
     let name: String
     let email: String
     let role: String
+    let mustChangePassword: Bool
+
+    enum CodingKeys: String, CodingKey {
+            case id
+            case name
+            case email
+            case role
+            case mustChangePassword = "must_change_password"
+        }
 }

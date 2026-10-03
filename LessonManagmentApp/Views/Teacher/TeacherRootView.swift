@@ -11,6 +11,7 @@ struct TeacherRootView: View {
 
     @State private var selectedSection: TeacherSection = .home
     @State private var showMenu = false
+    @State private var refreshID = UUID()
 
     let teacher: User
     
@@ -26,6 +27,10 @@ struct TeacherRootView: View {
         ZStack {
 
             currentPage
+                .id(refreshID)
+                .refreshable {
+                    await refreshAllTeacherData()
+                }
 
             if showMenu {
 
@@ -319,5 +324,39 @@ struct TeacherRootView: View {
             Spacer()
         }
         .padding()
+    }
+    
+    // synchronises the teacher's latest cloud data when they pull down to refresh
+    @MainActor
+    private func refreshAllTeacherData() async {
+
+        let syncPracticeTasks =
+            SyncTeacherPracticeTasksUseCase(
+                cloudPracticeTaskRepository:
+                    SupabasePracticeTaskRepository(),
+                cloudUserRepository:
+                    SupabaseUserRepository(),
+                localPracticeTaskRepository:
+                    practiceTaskRepository,
+                localUserRepository:
+                    userRepository
+            )
+
+        do {
+
+            // gets the latest practice task changes from Supabase
+            try await syncPracticeTasks.execute(
+                localTeacherID: teacher.id
+            )
+
+            // recreates the current page so it reads the updated SwiftData
+            refreshID = UUID()
+
+        } catch {
+
+            print(
+                "Failed to refresh teacher data: \(error)"
+            )
+        }
     }
 }

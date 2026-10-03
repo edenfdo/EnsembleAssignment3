@@ -13,6 +13,7 @@ import Auth
 final class RootViewModel: ObservableObject {
 
     @Published var currentUser: User?
+    @Published var requiresPasswordChange = false
 
     private var hasSeededData = false
 
@@ -43,20 +44,30 @@ final class RootViewModel: ObservableObject {
     }
 
 
-    // sets the logged-in user and updates the widget
+    // sets the logged-in user and records whether they must change their password
     func login(
         user: User,
+        requiresPasswordChange: Bool = false,
         userRepository: UserRepository,
         lessonRepository: LessonRepository
     ) {
 
         currentUser = user
 
+        self.requiresPasswordChange =
+            requiresPasswordChange
+
         updateWidgetData(
             for: user,
             userRepository: userRepository,
             lessonRepository: lessonRepository
         )
+    }
+    
+    // allows the user to continue after completing a required password change
+    func completeRequiredPasswordChange() {
+
+        requiresPasswordChange = false
     }
     
     // signs out of Supabase and clears the current user
@@ -70,6 +81,7 @@ final class RootViewModel: ObservableObject {
 
                 await MainActor.run {
                     currentUser = nil
+                    requiresPasswordChange = false
                 }
 
             } catch {

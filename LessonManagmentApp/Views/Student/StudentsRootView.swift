@@ -21,6 +21,8 @@ struct StudentRootView: View {
     @State private var selectedSection: StudentSection = .home
     @State private var showMenu = false
     @State private var resourceToOpen: Resource?
+    // changes after a global refresh so the current page reloads its local data
+    @State private var refreshID = UUID()
 
 
     var body: some View {
@@ -28,6 +30,10 @@ struct StudentRootView: View {
         ZStack {
 
             currentPage
+                .id(refreshID)
+                .refreshable {
+                    await refreshAllStudentData()
+                }
 
             if showMenu {
 
@@ -284,5 +290,74 @@ struct StudentRootView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+    
+    // synchronises all student cloud data when the user pulls down to refresh
+    @MainActor
+    private func refreshAllStudentData() async {
+
+        let cloudUserRepository =
+            SupabaseUserRepository()
+
+        let syncLessons =
+            SyncStudentLessonsUseCase(
+                cloudLessonRepository:
+                    SupabaseLessonRepository(),
+                cloudUserRepository:
+                    cloudUserRepository,
+                localLessonRepository:
+                    lessonRepository,
+                localUserRepository:
+                    userRepository
+            )
+
+        let syncPracticeTasks =
+            SyncStudentPracticeTasksUseCase(
+                cloudPracticeTaskRepository:
+                    SupabasePracticeTaskRepository(),
+                cloudUserRepository:
+                    cloudUserRepository,
+                localPracticeTaskRepository:
+                    practiceTaskRepository,
+                localUserRepository:
+                    userRepository
+            )
+
+        let syncResources =
+            SyncStudentResourcesUseCase(
+                cloudResourceRepository:
+                    SupabaseResourceRepository(),
+                cloudUserRepository:
+                    cloudUserRepository,
+                localResourceRepository:
+                    resourceRepository,
+                localUserRepository:
+                    userRepository
+            )
+
+        do {
+
+            // refreshes all cloud-backed student data
+            try await syncLessons.execute(
+                localStudentID: student.id
+            )
+
+            try await syncPracticeTasks.execute(
+                localStudentID: student.id
+            )
+
+            try await syncResources.execute(
+                localStudentID: student.id
+            )
+
+            // recreates the current page so it reads the newly synced SwiftData
+            refreshID = UUID()
+
+        } catch {
+
+            print(
+                "Failed to refresh student data: \(error)"
+            )
+        }
     }
 }

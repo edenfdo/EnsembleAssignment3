@@ -11,7 +11,7 @@ struct LoginView: View {
     
     @StateObject var viewModel: LoginViewModel
     
-    let onLogin: (User) -> Void
+    let onLogin: (User, Bool) -> Void
 
     var body: some View {
 
@@ -86,7 +86,10 @@ struct LoginView: View {
             if let user =
                 await viewModel.login() {
 
-                onLogin(user)
+                onLogin(
+                    user,
+                    viewModel.requiresPasswordChange
+                )
             }
         }
     }

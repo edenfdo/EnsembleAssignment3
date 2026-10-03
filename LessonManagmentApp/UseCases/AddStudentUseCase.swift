@@ -7,37 +7,28 @@
 
 import Foundation
 
-
 enum AddStudentError: Error {
-
     case missingName
     case invalidEmail
     case emailAlreadyExists
-    case missingPassword
 }
-
 
 struct AddStudentUseCase {
 
     private let userRepository: UserRepository
 
-
     // creates the use case with access to user data
     init(
         userRepository: UserRepository
     ) {
-
-        self.userRepository =
-            userRepository
+        self.userRepository = userRepository
     }
 
-
-    // creates a student while enforcing account creation rules
+    // validates student details before an invitation is sent
     func execute(
         firstName: String,
         lastName: String,
-        email: String,
-        password: String
+        email: String
     ) throws {
 
         let cleanedFirstName =
@@ -58,30 +49,17 @@ struct AddStudentUseCase {
         let normalizedEmail =
             cleanedEmail.lowercased()
 
-
         guard !cleanedFirstName.isEmpty
                 || !cleanedLastName.isEmpty
         else {
             throw AddStudentError.missingName
         }
 
-
         guard cleanedEmail.contains("@")
                 && cleanedEmail.contains(".")
         else {
             throw AddStudentError.invalidEmail
         }
-
-
-        guard !password
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
-            .isEmpty
-        else {
-            throw AddStudentError.missingPassword
-        }
-
 
         let emailAlreadyExists =
             userRepository
@@ -91,29 +69,8 @@ struct AddStudentUseCase {
                         normalizedEmail
                 }
 
-
         guard !emailAlreadyExists else {
             throw AddStudentError.emailAlreadyExists
         }
-
-
-        let fullName =
-            "\(cleanedFirstName) \(cleanedLastName)"
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-
-
-        let student = User(
-            name: fullName,
-            email: cleanedEmail,
-            password: password,
-            role: .student
-        )
-
-
-        userRepository.addUser(
-            student
-        )
     }
 }

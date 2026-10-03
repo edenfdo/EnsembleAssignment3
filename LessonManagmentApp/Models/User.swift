@@ -57,4 +57,31 @@ final class User: Identifiable {
         self.passwordHash = PasswordHasher.hash(password)
         self.roleRawValue = role.rawValue
     }
+    
+    // creates a local user from an authenticated Supabase profile
+    // without storing their Supabase password in SwiftData
+    init(
+        id: UUID,
+        name: String,
+        email: String,
+        role: UserRole
+    ) {
+        self.id = id
+        self.name = name
+
+        let cleanedEmail =
+            email.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+
+        self.email = cleanedEmail
+        self.normalizedEmail =
+            cleanedEmail.lowercased()
+
+        // authentication passwords are managed by Supabase
+        self.passwordHash = ""
+
+        self.roleRawValue =
+            role.rawValue
+    }
 }
