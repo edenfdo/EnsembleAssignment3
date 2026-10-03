@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Supabase
+import Auth
 
 
 enum ChangePasswordError: Error {
@@ -37,7 +39,7 @@ struct ChangePasswordUseCase {
         currentPassword: String,
         newPassword: String,
         confirmPassword: String
-    ) throws {
+    ) async throws {
 
         // checks that the current password is correct
         guard PasswordHasher.verify(
@@ -65,7 +67,12 @@ struct ChangePasswordUseCase {
                 .passwordsDoNotMatch
         }
 
-
+        try await SupabaseService.client.auth.update(
+                    user: UserAttributes(
+                        password: newPassword
+                    )
+                )
+        
         user.passwordHash =
             PasswordHasher.hash(
                 newPassword

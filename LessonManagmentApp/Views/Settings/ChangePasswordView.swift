@@ -61,20 +61,22 @@ struct ChangePasswordView: View {
                     Button {
 
                         // attempts to change the password and closes the form if successful
-                        let success =
-                            viewModel.changePassword(
-                                user: user,
-                                currentPassword:
-                                    currentPassword,
-                                newPassword:
-                                    newPassword,
-                                confirmPassword:
-                                    confirmPassword
-                            )
+                        Task {
 
-                        if success {
+                            let success =
+                                await viewModel.changePassword(
+                                    user: user,
+                                    currentPassword:
+                                        currentPassword,
+                                    newPassword:
+                                        newPassword,
+                                    confirmPassword:
+                                        confirmPassword
+                                )
 
-                            dismiss()
+                            if success {
+                                dismiss()
+                            }
                         }
 
                     } label: {

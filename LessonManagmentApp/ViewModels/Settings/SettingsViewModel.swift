@@ -35,14 +35,14 @@ final class SettingsViewModel: ObservableObject {
         currentPassword: String,
         newPassword: String,
         confirmPassword: String
-    ) -> Bool {
+    ) async ->  Bool {
 
         errorMessage = ""
         successMessage = ""
 
         do {
 
-            try changePasswordUseCase.execute(
+            try await changePasswordUseCase.execute(
                 user: user,
                 currentPassword: currentPassword,
                 newPassword: newPassword,
@@ -59,6 +59,7 @@ final class SettingsViewModel: ObservableObject {
             errorMessage =
                 "Current password is incorrect."
 
+            
             return false
 
         } catch ChangePasswordError.passwordTooShort {
@@ -80,6 +81,9 @@ final class SettingsViewModel: ObservableObject {
             errorMessage =
                 "Unable to change password."
 
+            print(
+                       "Failed to change password: \(error)"
+                   )
             return false
         }
     }
