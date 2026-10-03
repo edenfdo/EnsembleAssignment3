@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct QuizPlayerView: View {
 
@@ -128,18 +129,22 @@ struct QuizPlayerView: View {
                             .font(.title3)
                             .fontWeight(.semibold)
 
-                        Image(question.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(
-                                maxWidth: .infinity,
-                                maxHeight: 220
-                            )
-                            .padding()
-                            .background(
-                                .gray.opacity(0.08)
-                            )
-                            .cornerRadius(14)
+                        Group {
+                            if let uiImage = UIImage(data: question.imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                        }
+                        .frame(
+                            maxWidth: .infinity,
+                            maxHeight: 220
+                        )
+                        .padding()
+                        .background(
+                            .gray.opacity(0.08)
+                        )
+                        .cornerRadius(14)
 
                         VStack(spacing: 12) {
 
@@ -360,31 +365,3 @@ struct QuizPlayerView: View {
     }
 }
 
-#Preview {
-
-    @Previewable
-    @State var isShowingQuiz = true
-
-    let questions = [
-
-        QuizQuestion(
-            id: UUID(),
-            imageName: "treble-note-c",
-            answers: ["C", "D", "E", "F"],
-            correctAnswer: "C"
-        ),
-
-        QuizQuestion(
-            id: UUID(),
-            imageName: "treble-note-d",
-            answers: ["C", "D", "E", "F"],
-            correctAnswer: "D"
-        )
-    ]
-
-    QuizPlayerView(
-        title: "Treble Clef Note Reading",
-        questions: questions,
-        isShowingQuiz: $isShowingQuiz
-    )
-}

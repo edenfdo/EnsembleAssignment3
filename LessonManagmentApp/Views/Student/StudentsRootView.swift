@@ -225,7 +225,7 @@ struct StudentRootView: View {
                 showMenu: $showMenu,
                 selectedSection: $selectedSection,
                 viewModel: QuizViewModel(
-                    quizRepository: LocalQuizRepository()
+                    quizRepository: SupabaseQuizRepository()
                 )
             )
 

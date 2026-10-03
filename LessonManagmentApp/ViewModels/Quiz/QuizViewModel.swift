@@ -22,8 +22,13 @@ final class QuizViewModel: ObservableObject {
     }
 
     // loads the available quizzes from the repository
-    func loadQuizzes() {
-        quizzes = quizRepository.fetchQuizzes()
+    @MainActor
+    func loadQuizzes() async {
+        do {
+            quizzes = try await quizRepository.fetchQuizzes()
+        } catch {
+            print("Failed to load quizzes: \(error)")
+        }
     }
 
     // finds the treble clef quiz from the loaded quizzes

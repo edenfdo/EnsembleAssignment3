@@ -119,8 +119,8 @@ struct QuizzesView: View {
         }
 
 
-        .onAppear {
-            viewModel.loadQuizzes()
+        .task {
+            await viewModel.loadQuizzes()
         }
     }
 
@@ -216,21 +216,4 @@ struct QuizzesView: View {
         )
         .cornerRadius(14)
     }
-}
-
-#Preview {
-
-    @Previewable
-    @State var showMenu = false
-
-    @Previewable
-    @State var selectedSection: StudentSection = .quizzes
-
-    QuizzesView(
-        showMenu: $showMenu,
-        selectedSection: $selectedSection,
-        viewModel: QuizViewModel(
-            quizRepository: LocalQuizRepository()
-        )
-    )
 }

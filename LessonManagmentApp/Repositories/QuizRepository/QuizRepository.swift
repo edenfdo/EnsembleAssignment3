@@ -8,6 +8,5 @@
 import Foundation
 
 protocol QuizRepository {
-
-    func fetchQuizzes() -> [Quiz]
+    func fetchQuizzes() async throws -> [Quiz]
 }
