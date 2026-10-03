@@ -11,8 +11,15 @@ struct ProfileView: View {
 
     let user: User
 
+    @ObservedObject var viewModel: SettingsViewModel
+
     @Environment(\.dismiss)
     private var dismiss
+
+    @State private var isEditing = false
+    @State private var editedName = ""
+    @State private var isSaving = false
+    
 
     var body: some View {
 
@@ -41,10 +48,31 @@ struct ProfileView: View {
                     spacing: 16
                 ) {
 
-                    profileRow(
-                        title: "Name",
-                        value: user.name
-                    )
+                    if isEditing {
+
+                        VStack(
+                            alignment: .leading,
+                            spacing: 6
+                        ) {
+
+                            Text("Name")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            TextField(
+                                "Name",
+                                text: $editedName
+                            )
+                            .textFieldStyle(.roundedBorder)
+                        }
+
+                    } else {
+
+                        profileRow(
+                            title: "Name",
+                            value: user.name
+                        )
+                    }
 
                     Divider()
 
@@ -75,15 +103,56 @@ struct ProfileView: View {
             )
             .toolbar {
 
+                // LEFT SIDE — closes the Profile sheet
                 ToolbarItem(
-                    placement: .topBarTrailing
+                    placement: .topBarLeading
                 ) {
 
                     Button("Done") {
                         dismiss()
                     }
                 }
+
+                // RIGHT SIDE — switches between Edit and Save
+                ToolbarItem(
+                    placement: .topBarTrailing
+                ) {
+
+                    if isEditing {
+
+                        Button("Save") {
+
+                            Task {
+
+                                isSaving = true
+
+                                let success =
+                                    await viewModel.updateStudentProfile(
+                                        user: user,
+                                        name: editedName
+                                    )
+
+                                isSaving = false
+
+                                if success {
+                                    isEditing = false
+                                }
+                            }
+                        }
+                        .disabled(isSaving)
+
+                    } else {
+
+                        Button("Edit") {
+                            editedName = user.name
+                            isEditing = true
+                        }
+                    }
+                }
             }
+        }
+        .onAppear {
+            editedName = user.name
         }
     }
 

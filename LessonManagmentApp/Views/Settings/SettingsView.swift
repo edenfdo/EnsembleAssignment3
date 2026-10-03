@@ -170,7 +170,8 @@ struct SettingsView: View {
         ) {
 
             ProfileView(
-                user: user
+                user: user,
+                viewModel: viewModel
             )
         }
 

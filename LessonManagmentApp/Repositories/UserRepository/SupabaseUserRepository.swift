@@ -18,6 +18,10 @@ struct CreateStudentResponse: Decodable {
     let temporaryPassword: String
 }
 
+struct UpdateStudentProfileResponse: Decodable {
+    let success: Bool
+}
+
 final class SupabaseUserRepository {
 
     // finds a Supabase profile using the user's email
@@ -132,5 +136,29 @@ final class SupabaseUserRepository {
                 )
 
         return response
+    }
+    
+    // updates the authenticated student's profile name
+    func updateStudentProfile(
+        name: String
+    ) async throws {
+
+        struct UpdateStudentProfileRequest: Encodable {
+            let name: String
+        }
+
+        let request = UpdateStudentProfileRequest(
+            name: name
+        )
+
+        let _: UpdateStudentProfileResponse =
+            try await SupabaseService.client
+                .functions
+                .invoke(
+                    "update-student-profile",
+                    options: FunctionInvokeOptions(
+                        body: request
+                    )
+                )
     }
 }
