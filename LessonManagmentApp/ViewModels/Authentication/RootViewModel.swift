@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import Supabase
+import Auth
 
 final class RootViewModel: ObservableObject {
 
@@ -55,6 +57,26 @@ final class RootViewModel: ObservableObject {
             userRepository: userRepository,
             lessonRepository: lessonRepository
         )
+    }
+    
+    // signs out of Supabase and clears the current user
+    func logout() {
+
+        Task {
+
+            do {
+
+                try await SupabaseService.client.auth.signOut()
+
+                await MainActor.run {
+                    currentUser = nil
+                }
+
+            } catch {
+
+                print("Failed to log out: \(error)")
+            }
+        }
     }
     
     // updates the widget for the logged-in user
@@ -139,11 +161,7 @@ final class RootViewModel: ObservableObject {
     }
 
     
-    // clears the current user to log out
-    func logout() {
-
-        currentUser = nil
-    }
+   
 
    
     // adds the default student and teacher if no users exist
