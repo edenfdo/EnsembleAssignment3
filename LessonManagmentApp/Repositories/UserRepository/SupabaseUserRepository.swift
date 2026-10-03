@@ -22,6 +22,10 @@ struct UpdateStudentProfileResponse: Decodable {
     let success: Bool
 }
 
+struct DeleteStudentResponse: Decodable {
+    let success: Bool
+}
+
 final class SupabaseUserRepository {
 
     // finds a Supabase profile using the user's email
@@ -156,6 +160,30 @@ final class SupabaseUserRepository {
                 .functions
                 .invoke(
                     "update-student-profile",
+                    options: FunctionInvokeOptions(
+                        body: request
+                    )
+                )
+    }
+    
+    // deletes a student account through the delete-student Edge Function
+    func deleteStudent(
+        email: String
+    ) async throws {
+
+        struct DeleteStudentRequest: Encodable {
+            let email: String
+        }
+
+        let request = DeleteStudentRequest(
+            email: email
+        )
+
+        let _: DeleteStudentResponse =
+            try await SupabaseService.client
+                .functions
+                .invoke(
+                    "delete-student",
                     options: FunctionInvokeOptions(
                         body: request
                     )

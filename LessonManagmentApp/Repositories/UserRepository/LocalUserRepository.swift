@@ -69,4 +69,25 @@ final class LocalUserRepository: UserRepository {
             )
         }
     }
+    
+    // deletes a user from SwiftData and saves the change
+    func deleteUser(
+        _ user: User
+    ) {
+
+        modelContext.delete(
+            user
+        )
+
+        do {
+
+            try modelContext.save()
+
+        } catch {
+
+            print(
+                "Failed to delete user: \(error)"
+            )
+        }
+    }
 }

@@ -12,8 +12,14 @@ struct TeacherStudentDetailView: View {
     let student: User
    
     @StateObject var viewModel: TeacherStudentDetailViewModel
+    let onDelete: () async throws -> Void
 
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var showDeleteConfirmation = false
+    @State private var showDeleteError = false
+    @State private var isDeleting = false
+    
 
     var body: some View {
 
@@ -180,6 +186,40 @@ struct TeacherStudentDetailView: View {
                             }
                         }
                     }
+                    
+                    Divider()
+                        .padding(.top)
+
+                    Button {
+
+                        showDeleteConfirmation = true
+
+                    } label: {
+
+                        HStack {
+
+                            Image(
+                                systemName: "trash"
+                            )
+
+                            Text(
+                                isDeleting
+                                ? "Deleting Student..."
+                                : "Delete Student"
+                            )
+                            .fontWeight(.semibold)
+
+                            Spacer()
+                        }
+                        .padding()
+                        .foregroundStyle(.red)
+                        .background(
+                            .red.opacity(0.08)
+                        )
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isDeleting)
                 }
                 .padding()
             }
@@ -196,6 +236,51 @@ struct TeacherStudentDetailView: View {
                     }
                 }
             }
+        }
+        .alert(
+            "Delete Student?",
+            isPresented: $showDeleteConfirmation
+        ) {
+
+            Button(
+                "Cancel",
+                role: .cancel
+            ) { }
+
+            Button(
+                "Delete",
+                role: .destructive
+            ) {
+
+                Task {
+
+                    isDeleting = true
+
+                    do {
+
+                        try await onDelete()
+
+                        isDeleting = false
+
+                        dismiss()
+
+                    } catch {
+
+                        isDeleting = false
+                        showDeleteError = true
+
+                        print(
+                            "Failed to delete student: \(error)"
+                        )
+                    }
+                }
+            }
+
+        } message: {
+
+            Text(
+                "This will permanently delete \(student.name)'s account and associated lessons, practice tasks and resources."
+            )
         }
         .onAppear {
 

@@ -131,8 +131,6 @@ struct TeacherStudentsView: View {
             }
             .padding()
         }
-
-
         .sheet(
             item: $selectedStudent
         ) { student in
@@ -145,7 +143,13 @@ struct TeacherStudentsView: View {
                             lessonRepository,
                         practiceTaskRepository:
                             practiceTaskRepository
+                    ),
+                onDelete: {
+
+                    try await viewModel.deleteStudent(
+                        student
                     )
+                }
             )
         }
         .sheet(

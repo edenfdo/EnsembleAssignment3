@@ -19,5 +19,5 @@ protocol UserRepository {
     
     func updateUser(_ user: User)
     
-    
+    func deleteUser(_ user: User)
 }

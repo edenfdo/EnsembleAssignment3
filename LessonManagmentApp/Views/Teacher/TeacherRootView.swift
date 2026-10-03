@@ -190,7 +190,10 @@ struct TeacherRootView: View {
                 showMenu: $showMenu,
                 selectedSection: $selectedSection,
                 viewModel: TeacherStudentsViewModel(
-                    userRepository: userRepository
+                    userRepository: userRepository,
+                    lessonRepository: lessonRepository,
+                    practiceTaskRepository: practiceTaskRepository,
+                    resourceRepository: resourceRepository
                 ),
                 lessonRepository: lessonRepository,
                 practiceTaskRepository: practiceTaskRepository
