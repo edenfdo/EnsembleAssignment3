@@ -46,6 +46,23 @@ struct SyncTeacherStudentsUseCase {
 
         let localStudents =
             localUserRepository.getStudents()
+        
+        let previousCloudEmails =
+            StudentSyncStateService
+                .getSyncedStudentEmails(
+                    teacherID: authenticatedTeacher.id
+                )
+
+        let currentCloudEmails =
+            Set(
+                cloudStudents.map {
+                    $0.email
+                        .trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        )
+                        .lowercased()
+                }
+            )
 
 
         for cloudStudent in cloudStudents {
@@ -93,5 +110,35 @@ struct SyncTeacherStudentsUseCase {
                 )
             }
         }
+        // finds students that existed during the previous sync
+        // but have since been deleted from Supabase
+        let deletedCloudEmails =
+            previousCloudEmails.subtracting(
+                currentCloudEmails
+            )
+
+        for deletedEmail in deletedCloudEmails {
+
+            if let localStudent =
+                localUserRepository
+                    .getStudents()
+                    .first(where: {
+                        $0.normalizedEmail ==
+                            deletedEmail
+                    }) {
+
+                localUserRepository.deleteUser(
+                    localStudent
+                )
+            }
+        }
+
+        // remembers the current cloud students
+        // for the next sync
+        StudentSyncStateService
+            .saveSyncedStudentEmails(
+                currentCloudEmails,
+                teacherID: authenticatedTeacher.id
+            )
     }
 }
