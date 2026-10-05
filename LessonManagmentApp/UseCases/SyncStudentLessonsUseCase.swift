@@ -35,7 +35,7 @@ struct SyncStudentLessonsUseCase {
             try await cloudLessonRepository.getLessons()
         
 
-        let localUsers =
+        var localUsers =
             localUserRepository.getAllUsers()
 
         let previousCloudIDs =
@@ -61,18 +61,41 @@ struct SyncStudentLessonsUseCase {
                 continue
             }
 
-            guard let localTeacher =
+            let normalizedTeacherEmail =
+                cloudTeacher.email
+                    .trimmingCharacters(
+                        in: .whitespacesAndNewlines
+                    )
+                    .lowercased()
+
+            let localTeacher: User
+
+            if let existingTeacher =
                 localUsers.first(where: {
-                    $0.normalizedEmail
-                    ==
-                    cloudTeacher.email
-                        .trimmingCharacters(
-                            in: .whitespacesAndNewlines
-                        )
-                        .lowercased()
-                })
-            else {
-                continue
+                    $0.normalizedEmail ==
+                        normalizedTeacherEmail
+                }) {
+
+                localTeacher = existingTeacher
+
+            } else {
+
+                let newTeacher = User(
+                    id: cloudTeacher.id,
+                    name: cloudTeacher.name,
+                    email: cloudTeacher.email,
+                    role: .teacher
+                )
+
+                localUserRepository.addUser(
+                    newTeacher
+                )
+
+                localUsers.append(
+                    newTeacher
+                )
+
+                localTeacher = newTeacher
             }
 
             let localLessons =

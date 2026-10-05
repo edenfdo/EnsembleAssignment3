@@ -130,17 +130,7 @@ struct RootView: View {
                 }
             }
         }
-        .onAppear {
-            
-            viewModel.seedDataIfNeeded(
-                userRepository:
-                    userRepository,
-                practiceTaskRepository:
-                    practiceTaskRepository,
-                lessonRepository:
-                    lessonRepository
-            )
-        }
+        
     }
 }
 

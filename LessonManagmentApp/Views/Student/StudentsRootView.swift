@@ -23,17 +23,38 @@ struct StudentRootView: View {
     @State private var resourceToOpen: Resource?
     // changes after a global refresh so the current page reloads its local data
     @State private var refreshID = UUID()
+    @State private var isInitialSyncing = true
 
 
     var body: some View {
 
         ZStack {
 
-            currentPage
-                .id(refreshID)
-                .refreshable {
-                    await refreshAllStudentData()
+            if isInitialSyncing {
+
+                VStack(
+                    spacing: 12
+                ) {
+
+                    ProgressView()
+
+                    Text("Loading your data...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity
+                )
+
+            } else {
+
+                currentPage
+                    .id(refreshID)
+                    .refreshable {
+                        await refreshAllStudentData()
+                    }
+            }
 
             if showMenu {
 
@@ -152,6 +173,12 @@ struct StudentRootView: View {
                     .shadow(radius: 10)
                 }
             }
+        }
+        .task {
+
+            await refreshAllStudentData()
+
+            isInitialSyncing = false
         }
     }
 

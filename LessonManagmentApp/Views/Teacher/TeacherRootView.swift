@@ -12,6 +12,7 @@ struct TeacherRootView: View {
     @State private var selectedSection: TeacherSection = .home
     @State private var showMenu = false
     @State private var refreshID = UUID()
+    @State private var isInitialSyncing = true
 
     let teacher: User
     
@@ -26,11 +27,31 @@ struct TeacherRootView: View {
 
         ZStack {
 
-            currentPage
-                .id(refreshID)
-                .refreshable {
-                    await refreshAllTeacherData()
+            if isInitialSyncing {
+
+                VStack(
+                    spacing: 12
+                ) {
+
+                    ProgressView()
+
+                    Text("Loading your data...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity
+                )
+
+            } else {
+
+                currentPage
+                    .id(refreshID)
+                    .refreshable {
+                        await refreshAllTeacherData()
+                    }
+            }
 
             if showMenu {
 
@@ -148,6 +169,12 @@ struct TeacherRootView: View {
                     .shadow(radius: 10)
                 }
             }
+        }
+        .task {
+
+            await refreshAllTeacherData()
+
+            isInitialSyncing = false
         }
     }
 
