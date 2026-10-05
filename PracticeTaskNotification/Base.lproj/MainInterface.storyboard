@@ -12,31 +12,40 @@
             <objects>
                 <viewController id="M4Y-Lb-cyx" userLabel="Notification View Controller" customClass="NotificationViewController" customModule="PracticeTaskNotification" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" simulatedAppContext="notificationCenter" id="S3S-Oj-5AN">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="66"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="96"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="ydT-PQ-hw9">
-                                <rect key="frame" x="16" y="8" width="70.333333333333329" height="50.666666666666671"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="ydT-PQ-hw9">
+                                <rect key="frame" x="16.000000000000007" y="9" width="101.66666666666669" height="78.333333333333329"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Practice Task" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E58-iV-NrU">
-                                        <rect key="frame" x="0.0" y="0.0" width="70.333333333333329" height="13.333333333333334"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Practice Task" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hPU-h2-dvj">
+                                        <rect key="frame" x="0.0" y="0.0" width="101.66666666666667" height="20.333333333333332"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Task Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3uu-hJ-C1L">
+                                        <rect key="frame" x="0.0" y="26.333333333333332" width="57.666666666666664" height="13.333333333333332"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Piano Lesson" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6WR-Dr-SkC">
-                                        <rect key="frame" x="0.0" y="19.333333333333332" width="69.333333333333329" height="13.333333333333332"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Lesson Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6WR-Dr-SkC">
+                                        <rect key="frame" x="0.0" y="45.666666666666664" width="70.666666666666671" height="13.333333333333336"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IjR-00-I1d">
-                                        <rect key="frame" x="0.0" y="38.666666666666664" width="22.666666666666668" height="12"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Due Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I9f-u2-36n">
+                                        <rect key="frame" x="0.0" y="65" width="48.666666666666664" height="13.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="hPU-h2-dvj" firstAttribute="leading" secondItem="ydT-PQ-hw9" secondAttribute="leading" constant="20" id="7uS-ic-mcw"/>
+                                </constraints>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="2BE-c3-nQJ"/>
@@ -44,16 +53,16 @@
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <size key="freeformSize" width="320" height="66"/>
+                    <size key="freeformSize" width="320" height="96"/>
                     <connections>
-                        <outlet property="dueDateLabel" destination="IjR-00-I1d" id="z65-rL-Spc"/>
-                        <outlet property="lessonLabel" destination="6WR-Dr-SkC" id="es1-qN-wMv"/>
-                        <outlet property="taskTitleLabel" destination="E58-iV-NrU" id="G9h-qv-Pfs"/>
+                        <outlet property="dueDateLabel" destination="I9f-u2-36n" id="IHM-sH-NEf"/>
+                        <outlet property="lessonLabel" destination="6WR-Dr-SkC" id="okY-8H-FCL"/>
+                        <outlet property="taskTitleLabel" destination="3uu-hJ-C1L" id="yxU-gS-5j5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vXp-U4-Rya" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="138.93129770992365" y="140.84507042253523"/>
+            <point key="canvasLocation" x="138.93129770992365" y="152.11267605633805"/>
         </scene>
     </scenes>
 </document>

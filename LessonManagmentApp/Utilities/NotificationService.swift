@@ -73,6 +73,9 @@ enum NotificationService {
 
         content.sound =
             .default
+        
+        content.categoryIdentifier =
+            "PRACTICE_TASK_DUE"
 
         content.categoryIdentifier =
             "PRACTICE_TASK_DUE"
@@ -99,21 +102,28 @@ enum NotificationService {
             return
         }
 
-        let dateComponents =
-            Calendar.current.dateComponents(
-                [
-                    .year,
-                    .month,
-                    .day,
-                    .hour,
-                    .minute
-                ],
-                from: reminderDate
-            )
-
+//        let dateComponents =
+//            Calendar.current.dateComponents(
+//                [
+//                    .year,
+//                    .month,
+//                    .day,
+//                    .hour,
+//                    .minute
+//                ],
+//                from: reminderDate
+//            )
+//
+//        let trigger =
+//            UNCalendarNotificationTrigger(
+//                dateMatching: dateComponents,
+//                repeats: false
+//            )
+        
+        // TESTING ONLY — sends notification after 10 seconds
         let trigger =
-            UNCalendarNotificationTrigger(
-                dateMatching: dateComponents,
+            UNTimeIntervalNotificationTrigger(
+                timeInterval: 10,
                 repeats: false
             )
 
