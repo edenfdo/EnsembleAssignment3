@@ -14,6 +14,25 @@ final class RootViewModel: ObservableObject {
 
     @Published var currentUser: User?
     @Published var requiresPasswordChange = false
+    
+    init() {
+
+        Task {
+
+            for await (event, session) in
+                SupabaseService.client.auth.authStateChanges {
+
+                if event == .signedOut || session == nil {
+
+                    await MainActor.run {
+
+                        self.currentUser = nil
+                        self.requiresPasswordChange = false
+                    }
+                }
+            }
+        }
+    }
 
     // sets the logged-in user and records whether they must change their password
     func login(
@@ -176,21 +195,4 @@ final class RootViewModel: ObservableObject {
     }
 
     
-    // fixed IDs keep seeded users, lessons and tasks linked consistently
-    static let studentID =
-        UUID(
-            uuidString:
-                "11111111-1111-1111-1111-111111111111"
-        )!
-
-    static let teacherID =
-        UUID(
-            uuidString:
-                "22222222-2222-2222-2222-222222222222"
-        )!
-    static let lessonID =
-        UUID(
-            uuidString:
-                "33333333-3333-3333-3333-333333333333"
-        )!
 }
