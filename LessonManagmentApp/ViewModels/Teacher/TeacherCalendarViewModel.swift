@@ -186,12 +186,30 @@ final class TeacherCalendarViewModel: ObservableObject {
             }
 
         // saves each new lesson to Supabase
-        for lesson in newLessons {
+        do {
 
-            try await saveLessonToCloudUseCase.execute(
-                lesson: lesson,
-                studentEmail: student.email
+            for lesson in newLessons {
+
+                try await saveLessonToCloudUseCase.execute(
+                    lesson: lesson,
+                    studentEmail: student.email
+                )
+            }
+
+        } catch {
+
+            // removes locally-created lessons if cloud saving fails
+            for lesson in newLessons {
+                lessonRepository.deleteLesson(
+                    lesson
+                )
+            }
+
+            loadData(
+                teacherID: teacherID
             )
+
+            throw error
         }
     }
     

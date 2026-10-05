@@ -68,6 +68,8 @@ struct AddLessonView: View {
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
     @State private var pendingStudentID: UUID?
+    
+    @State private var isSaving = false
 
     var body: some View {
 
@@ -264,10 +266,15 @@ struct AddLessonView: View {
     // attempts to schedule the lesson and handles scheduling conflicts
     private func addLesson() {
 
-        guard let selectedStudentID
-        else {
+        guard !isSaving else {
             return
         }
+
+        guard let selectedStudentID else {
+            return
+        }
+
+        isSaving = true
 
         Task {
 
@@ -293,10 +300,12 @@ struct AddLessonView: View {
 
             } catch ScheduleLessonError.schedulingConflict {
 
+                // allow Add Anyway to be pressed
+                isSaving = false
+
                 pendingStudentID =
                     selectedStudentID
 
-                // retrieves the conflicting lesson to provide useful information in the warning
                 if let conflict =
                     viewModel.conflictingLesson(
                         startingDate: date,
@@ -336,23 +345,29 @@ struct AddLessonView: View {
 
             } catch {
 
+                isSaving = false
+
                 print(
                     "Failed to schedule lesson: \(error)"
                 )
             }
         }
     }
-
-    
     
     // adds the lesson after the user chooses to ignore the conflict warning
     private func addLessonIgnoringConflict() {
+
+        guard !isSaving else {
+            return
+        }
 
         guard let studentID =
             pendingStudentID
         else {
             return
         }
+
+        isSaving = true
 
         Task {
 
@@ -375,9 +390,14 @@ struct AddLessonView: View {
                     allowConflict: true
                 )
 
+                showConflictAlert = false
+
+                // closes the Add Lesson modal
                 dismiss()
 
             } catch {
+
+                isSaving = false
 
                 print(
                     "Failed to schedule lesson: \(error)"
