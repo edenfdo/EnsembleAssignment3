@@ -164,6 +164,17 @@ class CalendarViewModel: ObservableObject {
             }
     }
     
+    // finds the teacher linked to a specific lesson
+    func teacherNameForLesson(
+        _ lesson: Lesson
+    ) -> String {
+
+        teachers.first {
+            $0.id == lesson.teacherID
+        }?.name
+        ?? "Teacher"
+    }
+    
     // finds practice tasks linked to a specific lesson
     func practiceTasksForLesson(
         _ lesson: Lesson

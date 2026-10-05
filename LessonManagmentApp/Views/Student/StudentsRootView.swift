@@ -38,7 +38,7 @@ struct StudentRootView: View {
 
                     ProgressView()
 
-                    Text("Loading your data...")
+                    Text("Loading...")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

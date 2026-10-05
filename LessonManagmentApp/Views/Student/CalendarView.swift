@@ -83,6 +83,12 @@ struct CalendarView: View {
                                     Text(lesson.date, style: .time)
                                         .foregroundStyle(.secondary)
 
+                                    // Lesson teacher
+                                    Text(
+                                        "Teacher: \(viewModel.teacherNameForLesson(lesson))"
+                                    )
+                                    .foregroundStyle(.secondary)
+
                                     // Lesson location
                                     Text(lesson.location)
                                         .foregroundStyle(.secondary)
