@@ -7,6 +7,27 @@
 
 import SwiftUI
 
+
+private enum EditRecurrenceEndOption:
+    String,
+    CaseIterable,
+    Identifiable {
+
+    case never
+    case onDate
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .never:
+            return "Never"
+
+        case .onDate:
+            return "On Date"
+        }
+    }
+}
 struct EditLessonView: View {
 
     let lesson: Lesson
@@ -23,6 +44,12 @@ struct EditLessonView: View {
     @State private var durationMinutes: Int
     @State private var location: String
     @State private var notes: String
+    @State private var recurrence: LessonRecurrence
+
+    @State private var recurrenceEnds:
+        EditRecurrenceEndOption
+
+    @State private var recurrenceEndDate: Date
     
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
@@ -56,6 +83,28 @@ struct EditLessonView: View {
 
         _notes = State(
             initialValue: lesson.notes
+        )
+        
+        _recurrence = State(
+            initialValue: lesson.recurrence
+        )
+
+        _recurrenceEnds = State(
+            initialValue:
+                lesson.recurrenceEndDate == nil
+                    ? .never
+                    : .onDate
+        )
+
+        _recurrenceEndDate = State(
+            initialValue:
+                lesson.recurrenceEndDate
+                ?? Calendar.current.date(
+                    byAdding: .month,
+                    value: 3,
+                    to: lesson.date
+                )
+                ?? lesson.date
         )
     }
 
@@ -91,7 +140,49 @@ struct EditLessonView: View {
                         text: $location
                     )
                 }
+                
+                Section("Repeat") {
 
+                    Picker(
+                        "Repeat",
+                        selection: $recurrence
+                    ) {
+
+                        Text("Does not repeat")
+                            .tag(LessonRecurrence.none)
+
+                        Text("Weekly")
+                            .tag(LessonRecurrence.weekly)
+                    }
+
+                    if recurrence == .weekly {
+
+                        Picker(
+                            "Ends",
+                            selection: $recurrenceEnds
+                        ) {
+
+                            ForEach(
+                                EditRecurrenceEndOption.allCases
+                            ) { option in
+
+                                Text(option.displayName)
+                                    .tag(option)
+                            }
+                        }
+
+                        if recurrenceEnds == .onDate {
+
+                            DatePicker(
+                                "End Date",
+                                selection: $recurrenceEndDate,
+                                in: date...,
+                                displayedComponents: .date
+                            )
+                        }
+                    }
+                }
+                
                 Section(
                     "Notes"
                 ) {
@@ -142,9 +233,13 @@ struct EditLessonView: View {
                                     durationMinutes,
                                 teacherID:
                                     teacher.id,
-                                repeatOption:
-                                    .none,
-                                numberOfLessons: 1,
+                                recurrence:
+                                    recurrence,
+                                recurrenceEndDate:
+                                    recurrence == .weekly &&
+                                    recurrenceEnds == .onDate
+                                        ? recurrenceEndDate
+                                        : nil,
                                 excludingLessonID:
                                     lesson.id
                             ) {
@@ -211,6 +306,12 @@ struct EditLessonView: View {
                     durationMinutes: durationMinutes,
                     location: location,
                     notes: notes,
+                    recurrence: recurrence,
+                    recurrenceEndDate:
+                        recurrence == .weekly &&
+                        recurrenceEnds == .onDate
+                            ? recurrenceEndDate
+                            : nil,
                     teacherID: teacher.id
                 )
 

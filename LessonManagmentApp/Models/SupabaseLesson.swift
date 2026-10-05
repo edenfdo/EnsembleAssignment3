@@ -17,6 +17,8 @@ struct SupabaseLesson: Codable {
     let teacherID: UUID
     let notes: String
     let location: String
+    let recurrenceType: String
+    let recurrenceEndDate: Date?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -27,5 +29,7 @@ struct SupabaseLesson: Codable {
         case teacherID = "teacher_id"
         case notes
         case location
+        case recurrenceType = "recurrence_type"
+        case recurrenceEndDate = "recurrence_end_date"
     }
 }

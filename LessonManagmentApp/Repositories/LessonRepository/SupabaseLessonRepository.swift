@@ -34,7 +34,9 @@ final class SupabaseLessonRepository {
                     student_id,
                     teacher_id,
                     notes,
-                    location
+                    location,
+                    recurrence_type,
+                    recurrence_end_date
                     """
                 )
                 .order(

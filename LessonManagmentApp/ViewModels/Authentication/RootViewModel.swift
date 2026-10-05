@@ -81,8 +81,10 @@ final class RootViewModel: ObservableObject {
                 userRepository
                     .getStudents()
 
+            let now = Date()
+
             let widgetLessons =
-                lessons.map { lesson in
+                lessons.flatMap { lesson in
 
                     let studentName =
                         students.first {
@@ -90,14 +92,28 @@ final class RootViewModel: ObservableObject {
                         }?.name
                         ?? "Student"
 
-                    return WidgetLessonData(
-                        id: lesson.id,
-                        title: lesson.title,
-                        date: lesson.date,
-                        durationMinutes: lesson.durationMinutes,
-                        personName: studentName,
-                        location: lesson.location
-                    )
+                    let occurrenceDates =
+                        LessonRecurrenceService
+                            .upcomingOccurrenceDates(
+                                for: lesson,
+                                onOrAfter: now,
+                                limit: 3
+                            )
+
+                    return occurrenceDates.map { occurrenceDate in
+
+                        WidgetLessonData(
+                            id: UUID(),
+                            title: lesson.title,
+                            date: occurrenceDate,
+                            durationMinutes: lesson.durationMinutes,
+                            personName: studentName,
+                            location: lesson.location
+                        )
+                    }
+                }
+                .sorted {
+                    $0.date < $1.date
                 }
 
             WidgetDataService.save(
@@ -117,8 +133,10 @@ final class RootViewModel: ObservableObject {
                 userRepository
                     .getTeachers()
 
+            let now = Date()
+
             let widgetLessons =
-                lessons.map { lesson in
+                lessons.flatMap { lesson in
 
                     let teacherName =
                         teachers.first {
@@ -126,14 +144,28 @@ final class RootViewModel: ObservableObject {
                         }?.name
                         ?? "Teacher"
 
-                    return WidgetLessonData(
-                        id: lesson.id,
-                        title: lesson.title,
-                        date: lesson.date,
-                        durationMinutes: lesson.durationMinutes,
-                        personName: teacherName,
-                        location: lesson.location
-                    )
+                    let occurrenceDates =
+                        LessonRecurrenceService
+                            .upcomingOccurrenceDates(
+                                for: lesson,
+                                onOrAfter: now,
+                                limit: 3
+                            )
+
+                    return occurrenceDates.map { occurrenceDate in
+
+                        WidgetLessonData(
+                            id: UUID(),
+                            title: lesson.title,
+                            date: occurrenceDate,
+                            durationMinutes: lesson.durationMinutes,
+                            personName: teacherName,
+                            location: lesson.location
+                        )
+                    }
+                }
+                .sorted {
+                    $0.date < $1.date
                 }
 
             WidgetDataService.save(

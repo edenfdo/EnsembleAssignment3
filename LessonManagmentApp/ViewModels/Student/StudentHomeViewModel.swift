@@ -11,6 +11,7 @@ import Combine
 class StudentHomeViewModel: ObservableObject {
 
     @Published var upcomingLesson: Lesson?
+    @Published var upcomingLessonDate: Date?
     @Published var practiceTasks: [PracticeTask] = []
 
     private let lessonRepository: LessonRepository
@@ -40,11 +41,38 @@ class StudentHomeViewModel: ObservableObject {
         let studentLessons =
             lessonRepository.getLessons(forStudentID: studentID)
 
-        // filters out past lessons and selects the closest upcoming lesson
-        upcomingLesson = studentLessons
-            .filter { $0.date >= Date() }
-            .sorted { $0.date < $1.date }
-            .first
+        // finds the next actual occurrence across
+        // one-off and recurring lessons
+        let now = Date()
+
+        let upcomingOccurrences =
+            studentLessons.compactMap { lesson
+                -> (lesson: Lesson, date: Date)? in
+
+                guard let nextDate =
+                    LessonRecurrenceService
+                        .nextOccurrenceDate(
+                            for: lesson,
+                            onOrAfter: now
+                        )
+                else {
+                    return nil
+                }
+
+                return (
+                    lesson: lesson,
+                    date: nextDate
+                )
+            }
+            .sorted {
+                $0.date < $1.date
+            }
+
+        upcomingLesson =
+            upcomingOccurrences.first?.lesson
+
+        upcomingLessonDate =
+            upcomingOccurrences.first?.date
 
         practiceTasks =
             practiceTaskRepository.getTasks(forStudentID: studentID)

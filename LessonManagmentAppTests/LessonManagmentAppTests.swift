@@ -103,11 +103,8 @@ struct LessonManagmentAppTests {
             viewModel.conflictingLesson(
                 startingDate: newLessonStart,
                 durationMinutes: 60,
-                teacherID: teacherID,
-                repeatOption: .none,
-                numberOfLessons: 1
+                teacherID: teacherID
             )
-
         #expect(conflict == nil)
     }
 
@@ -172,9 +169,7 @@ struct LessonManagmentAppTests {
             viewModel.conflictingLesson(
                 startingDate: overlappingStart,
                 durationMinutes: 60,
-                teacherID: teacherID,
-                repeatOption: .none,
-                numberOfLessons: 1
+                teacherID: teacherID
             )
 
         #expect(conflict != nil)
@@ -242,9 +237,7 @@ struct LessonManagmentAppTests {
             viewModel.conflictingLesson(
                 startingDate: exactEndTime,
                 durationMinutes: 60,
-                teacherID: teacherID,
-                repeatOption: .none,
-                numberOfLessons: 1
+                teacherID: teacherID
             )
 
         #expect(conflict == nil)

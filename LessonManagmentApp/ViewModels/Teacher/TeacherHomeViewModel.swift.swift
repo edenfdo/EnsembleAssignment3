@@ -33,18 +33,43 @@ final class TeacherHomeViewModel: ObservableObject {
         students =
             userRepository.getStudents()
 
+        let calendar = Calendar.current
+        let today = Date()
+
         todaysLessons =
             lessonRepository
                 .getLessons(
                     forTeacherID: teacherID
                 )
-                .filter {
-                    Calendar.current.isDateInToday(
-                        $0.date
+                .filter { lesson in
+
+                    LessonRecurrenceService.occurs(
+                        lesson: lesson,
+                        on: today,
+                        calendar: calendar
                     )
                 }
-                .sorted {
-                    $0.date < $1.date
+                .sorted { firstLesson, secondLesson in
+
+                    let firstDate =
+                        LessonRecurrenceService
+                            .occurrenceDate(
+                                for: firstLesson,
+                                on: today,
+                                calendar: calendar
+                            )
+                        ?? firstLesson.date
+
+                    let secondDate =
+                        LessonRecurrenceService
+                            .occurrenceDate(
+                                for: secondLesson,
+                                on: today,
+                                calendar: calendar
+                            )
+                        ?? secondLesson.date
+
+                    return firstDate < secondDate
                 }
     }
 

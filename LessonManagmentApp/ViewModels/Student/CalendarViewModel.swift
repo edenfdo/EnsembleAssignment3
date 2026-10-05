@@ -104,11 +104,13 @@ class CalendarViewModel: ObservableObject {
         updateWidgetData()
     }
     
-    // updates the shared widget with the student's lessons
+    // updates the shared widget with the student's upcoming lesson occurrences
     private func updateWidgetData() {
 
+        let now = Date()
+
         let widgetLessons =
-            lessons.map { lesson in
+            lessons.flatMap { lesson in
 
                 let teacherName =
                     teachers.first {
@@ -116,14 +118,28 @@ class CalendarViewModel: ObservableObject {
                     }?.name
                     ?? "Teacher"
 
-                return WidgetLessonData(
-                    id: lesson.id,
-                    title: lesson.title,
-                    date: lesson.date,
-                    durationMinutes: lesson.durationMinutes,
-                    personName: teacherName,
-                    location: lesson.location
-                )
+                let occurrenceDates =
+                    LessonRecurrenceService
+                        .upcomingOccurrenceDates(
+                            for: lesson,
+                            onOrAfter: now,
+                            limit: 3
+                        )
+
+                return occurrenceDates.map { occurrenceDate in
+
+                    WidgetLessonData(
+                        id: UUID(),
+                        title: lesson.title,
+                        date: occurrenceDate,
+                        durationMinutes: lesson.durationMinutes,
+                        personName: teacherName,
+                        location: lesson.location
+                    )
+                }
+            }
+            .sorted {
+                $0.date < $1.date
             }
 
         WidgetDataService.save(
@@ -132,15 +148,20 @@ class CalendarViewModel: ObservableObject {
         )
     }
 
-    // finds lessons that occur on the selected date
+    // finds one-off and recurring lessons that occur on the selected date
     func lessons(for date: Date) -> [Lesson] {
 
-        lessons.filter { lesson in
-            Calendar.current.isDate(
-                lesson.date,
-                inSameDayAs: date
-            )
-        }
+        lessons
+            .filter { lesson in
+
+                LessonRecurrenceService.occurs(
+                    lesson: lesson,
+                    on: date
+                )
+            }
+            .sorted {
+                $0.date < $1.date
+            }
     }
     
     // finds practice tasks linked to a specific lesson

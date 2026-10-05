@@ -175,6 +175,7 @@ struct TeacherCalendarView: View {
 
                     LessonDetailView(
                         lesson: lesson,
+                        occurrenceDate: selectedDate,
                         practiceTasks:
                             viewModel.practiceTasksForLesson(
                                 lesson
@@ -468,11 +469,12 @@ struct TeacherCalendarView: View {
         [Lesson] {
 
         viewModel.lessons
-            .filter {
+            .filter { lesson in
 
-                calendar.isDate(
-                    $0.date,
-                    inSameDayAs: selectedDate
+                LessonRecurrenceService.occurs(
+                    lesson: lesson,
+                    on: selectedDate,
+                    calendar: calendar
                 )
             }
             .sorted {

@@ -53,22 +53,56 @@ struct Provider: TimelineProvider {
     }
 
 
-    // loads shared lesson data and creates the widget timeline
+    // loads shared lesson data and refreshes
+    // after the next lesson begins
     func getTimeline(
         in context: Context,
         completion: @escaping (Timeline<LessonWidgetEntry>) -> Void
     ) {
 
+        let now = Date()
+
+        let snapshot =
+            loadSnapshot()
+
         let entry =
             LessonWidgetEntry(
-                date: .now,
-                snapshot: loadSnapshot()
+                date: now,
+                snapshot: snapshot
             )
+
+        // finds the closest upcoming occurrence
+        let nextLessonDate =
+            snapshot?.lessons
+                .filter {
+                    $0.date >= now
+                }
+                .map {
+                    $0.date
+                }
+                .min()
+
+        let policy: TimelineReloadPolicy
+
+        if let nextLessonDate {
+
+            // refresh shortly after the lesson begins
+            // so the following lesson becomes "Next Lesson"
+            let refreshDate =
+                nextLessonDate
+                    .addingTimeInterval(60)
+
+            policy = .after(refreshDate)
+
+        } else {
+
+            policy = .never
+        }
 
         let timeline =
             Timeline(
                 entries: [entry],
-                policy: .never
+                policy: policy
             )
 
         completion(timeline)

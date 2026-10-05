@@ -48,7 +48,9 @@ struct SaveLessonToCloudUseCase {
             studentID: studentProfile.id,
             teacherID: authenticatedTeacher.id,
             notes: lesson.notes,
-            location: lesson.location
+            location: lesson.location,
+            recurrenceType: lesson.recurrence.rawValue,
+            recurrenceEndDate: lesson.recurrenceEndDate
         )
 
         try await lessonRepository.addLesson(cloudLesson)
@@ -80,7 +82,9 @@ struct SaveLessonToCloudUseCase {
                 studentID: studentProfile.id,
                 teacherID: authenticatedTeacher.id,
                 notes: lesson.notes,
-                location: lesson.location
+                location: lesson.location,
+                recurrenceType: lesson.recurrence.rawValue,
+                recurrenceEndDate: lesson.recurrenceEndDate
             )
 
         try await lessonRepository.updateLesson(

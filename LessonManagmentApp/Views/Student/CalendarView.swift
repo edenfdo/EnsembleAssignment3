@@ -210,6 +210,7 @@ struct CalendarView: View {
 
                     LessonDetailView(
                         lesson: lesson,
+                        occurrenceDate: viewModel.selectedDate,
                         practiceTasks:
                             viewModel.practiceTasksForLesson(
                                 lesson

@@ -88,11 +88,13 @@ final class TeacherCalendarViewModel: ObservableObject {
         updateWidgetData()
     }
     
-    // updates the shared widget with the teacher's lessons
+    // updates the shared widget with the teacher's upcoming lesson occurrences
     private func updateWidgetData() {
 
+        let now = Date()
+
         let widgetLessons =
-            lessons.map { lesson in
+            lessons.flatMap { lesson in
 
                 let studentName =
                     students.first {
@@ -100,14 +102,28 @@ final class TeacherCalendarViewModel: ObservableObject {
                     }?.name
                     ?? "Student"
 
-                return WidgetLessonData(
-                    id: lesson.id,
-                    title: lesson.title,
-                    date: lesson.date,
-                    durationMinutes: lesson.durationMinutes,
-                    personName: studentName,
-                    location: lesson.location
-                )
+                let occurrenceDates =
+                    LessonRecurrenceService
+                        .upcomingOccurrenceDates(
+                            for: lesson,
+                            onOrAfter: now,
+                            limit: 3
+                        )
+
+                return occurrenceDates.map { occurrenceDate in
+
+                    WidgetLessonData(
+                        id: UUID(),
+                        title: lesson.title,
+                        date: occurrenceDate,
+                        durationMinutes: lesson.durationMinutes,
+                        personName: studentName,
+                        location: lesson.location
+                    )
+                }
+            }
+            .sorted {
+                $0.date < $1.date
             }
 
         WidgetDataService.save(
@@ -125,8 +141,8 @@ final class TeacherCalendarViewModel: ObservableObject {
         notes: String,
         studentID: UUID,
         teacherID: UUID,
-        repeatOption: LessonRepeatOption,
-        numberOfLessons: Int,
+        recurrence: LessonRecurrence,
+        recurrenceEndDate: Date?,
         allowConflict: Bool = false
     ) async throws {
 
@@ -154,8 +170,8 @@ final class TeacherCalendarViewModel: ObservableObject {
             notes: notes,
             studentID: studentID,
             teacherID: teacherID,
-            repeatOption: repeatOption,
-            numberOfLessons: numberOfLessons,
+            recurrence: recurrence,
+            recurrenceEndDate: recurrenceEndDate,
             allowConflict: allowConflict
         )
 
@@ -184,8 +200,8 @@ final class TeacherCalendarViewModel: ObservableObject {
         startingDate: Date,
         durationMinutes: Int,
         teacherID: UUID,
-        repeatOption: LessonRepeatOption,
-        numberOfLessons: Int,
+        recurrence: LessonRecurrence = .none,
+        recurrenceEndDate: Date? = nil,
         excludingLessonID: UUID? = nil
     ) -> Lesson? {
 
@@ -193,8 +209,8 @@ final class TeacherCalendarViewModel: ObservableObject {
             startingDate: startingDate,
             durationMinutes: durationMinutes,
             teacherID: teacherID,
-            repeatOption: repeatOption,
-            numberOfLessons: numberOfLessons,
+            recurrence: recurrence,
+            recurrenceEndDate: recurrenceEndDate,
             excludingLessonID: excludingLessonID
         )
     }
@@ -240,6 +256,8 @@ final class TeacherCalendarViewModel: ObservableObject {
         durationMinutes: Int,
         location: String,
         notes: String,
+        recurrence: LessonRecurrence,
+        recurrenceEndDate: Date?,
         teacherID: UUID
     ) async throws {
 
@@ -256,6 +274,12 @@ final class TeacherCalendarViewModel: ObservableObject {
         lesson.durationMinutes = durationMinutes
         lesson.location = location
         lesson.notes = notes
+        lesson.recurrence = recurrence
+
+        lesson.recurrenceEndDate =
+            recurrence == .weekly
+                ? recurrenceEndDate
+                : nil
 
         lessonRepository.updateLesson(
             lesson

@@ -12,6 +12,7 @@ import Lottie
 struct LessonDetailView: View {
 
     let lesson: Lesson
+    var occurrenceDate: Date? = nil
 
     let practiceTasks: [PracticeTask]
     let resources: [Resource]
@@ -40,12 +41,12 @@ struct LessonDetailView: View {
                 ) {
 
                     Text(
-                        lesson.date,
+                        displayedLessonDate,
                         style: .date
                     )
 
                     Text(
-                        "\(lesson.date.formatted(date: .omitted, time: .shortened)) – \(lessonEndTime.formatted(date: .omitted, time: .shortened))"
+                        "\(displayedLessonDate.formatted(date: .omitted, time: .shortened)) – \(lessonEndTime.formatted(date: .omitted, time: .shortened))"
                     )
 
                     Text(
@@ -309,11 +310,38 @@ struct LessonDetailView: View {
     // calculates the lesson end time using its start time and duration
     private var lessonEndTime: Date {
 
-        lesson.date.addingTimeInterval(
+        displayedLessonDate.addingTimeInterval(
             TimeInterval(
                 lesson.durationMinutes * 60
             )
         )
+    }
+    
+    // combines the selected occurrence day
+    // with the lesson's original start time
+    private var displayedLessonDate: Date {
+
+        guard let occurrenceDate else {
+            return lesson.date
+        }
+
+        let calendar = Calendar.current
+
+        let timeComponents =
+            calendar.dateComponents(
+                [.hour, .minute, .second],
+                from: lesson.date
+            )
+
+        return calendar.date(
+            bySettingHour:
+                timeComponents.hour ?? 0,
+            minute:
+                timeComponents.minute ?? 0,
+            second:
+                timeComponents.second ?? 0,
+            of: occurrenceDate
+        ) ?? lesson.date
     }
 }
 

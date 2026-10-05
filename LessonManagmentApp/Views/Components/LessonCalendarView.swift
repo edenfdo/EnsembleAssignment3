@@ -146,12 +146,12 @@ struct LessonCalendarView: View {
             )
 
         let hasLesson =
-            lessons.contains {
+            lessons.contains { lesson in
 
-                calendar.isDate(
-                    $0.date,
-                    inSameDayAs:
-                        date
+                LessonRecurrenceService.occurs(
+                    lesson: lesson,
+                    on: date,
+                    calendar: calendar
                 )
             }
 

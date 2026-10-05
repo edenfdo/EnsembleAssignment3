@@ -7,6 +7,31 @@
 
 import SwiftUI
 
+private enum RecurrenceEndOption:
+    String,
+    CaseIterable,
+    Identifiable {
+
+    case never
+    case onDate
+
+    var id: String {
+        rawValue
+    }
+
+    var displayName: String {
+
+        switch self {
+
+        case .never:
+            return "Never"
+
+        case .onDate:
+            return "On Date"
+        }
+    }
+}
+
 struct AddLessonView: View {
 
     let teacher: User
@@ -27,10 +52,18 @@ struct AddLessonView: View {
 
     @State private var notes = ""
 
-    @State private var repeatOption:
-        LessonRepeatOption = .none
+    @State private var recurrence:
+        LessonRecurrence = .none
 
-    @State private var numberOfLessons = 4
+    @State private var recurrenceEnds =
+        RecurrenceEndOption.never
+
+    @State private var recurrenceEndDate =
+        Calendar.current.date(
+            byAdding: .month,
+            value: 3,
+            to: Date()
+        ) ?? Date()
     
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
@@ -100,27 +133,41 @@ struct AddLessonView: View {
 
                     Picker(
                         "Repeat",
-                        selection: $repeatOption
+                        selection: $recurrence
                     ) {
 
-                        ForEach(
-                            LessonRepeatOption.allCases
-                        ) { option in
+                        Text("Does not repeat")
+                            .tag(LessonRecurrence.none)
 
-                            Text(
-                                option.displayName
-                            )
-                            .tag(option)
-                        }
+                        Text("Weekly")
+                            .tag(LessonRecurrence.weekly)
                     }
 
-                    if repeatOption != .none {
+                    if recurrence == .weekly {
 
-                        Stepper(
-                            "Number of lessons: \(numberOfLessons)",
-                            value: $numberOfLessons,
-                            in: 2...20
-                        )
+                        Picker(
+                            "Ends",
+                            selection: $recurrenceEnds
+                        ) {
+
+                            ForEach(
+                                RecurrenceEndOption.allCases
+                            ) { option in
+
+                                Text(option.displayName)
+                                    .tag(option)
+                            }
+                        }
+
+                        if recurrenceEnds == .onDate {
+
+                            DatePicker(
+                                "End Date",
+                                selection: $recurrenceEndDate,
+                                in: date...,
+                                displayedComponents: .date
+                            )
+                        }
                     }
                 }
 
@@ -144,11 +191,7 @@ struct AddLessonView: View {
 
                     } label: {
 
-                        Text(
-                            repeatOption == .none
-                            ? "Add Lesson"
-                            : "Add Lessons"
-                        )
+                        Text("Add Lesson")
                         .fontWeight(.semibold)
                         .frame(
                             maxWidth: .infinity
@@ -238,8 +281,12 @@ struct AddLessonView: View {
                     notes: notes,
                     studentID: selectedStudentID,
                     teacherID: teacher.id,
-                    repeatOption: repeatOption,
-                    numberOfLessons: numberOfLessons
+                    recurrence: recurrence,
+                    recurrenceEndDate:
+                        recurrence == .weekly &&
+                        recurrenceEnds == .onDate
+                            ? recurrenceEndDate
+                            : nil
                 )
 
                 dismiss()
@@ -255,8 +302,12 @@ struct AddLessonView: View {
                         startingDate: date,
                         durationMinutes: durationMinutes,
                         teacherID: teacher.id,
-                        repeatOption: repeatOption,
-                        numberOfLessons: numberOfLessons
+                        recurrence: recurrence,
+                        recurrenceEndDate:
+                            recurrence == .weekly &&
+                            recurrenceEnds == .onDate
+                                ? recurrenceEndDate
+                                : nil
                     ) {
 
                     let conflictStart =
@@ -315,8 +366,12 @@ struct AddLessonView: View {
                     notes: notes,
                     studentID: studentID,
                     teacherID: teacher.id,
-                    repeatOption: repeatOption,
-                    numberOfLessons: numberOfLessons,
+                    recurrence: recurrence,
+                    recurrenceEndDate:
+                        recurrence == .weekly &&
+                        recurrenceEnds == .onDate
+                            ? recurrenceEndDate
+                            : nil,
                     allowConflict: true
                 )
 

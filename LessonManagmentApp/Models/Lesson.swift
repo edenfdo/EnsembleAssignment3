@@ -8,6 +8,11 @@
 import Foundation
 import SwiftData
 
+enum LessonRecurrence: String, Codable, CaseIterable {
+    case none
+    case weekly
+}
+
 @Model
 final class Lesson: Identifiable {
 
@@ -24,6 +29,21 @@ final class Lesson: Identifiable {
     var notes: String
     var location: String
     
+    var recurrenceRawValue: String = LessonRecurrence.none.rawValue
+    var recurrenceEndDate: Date? = nil
+    
+    var recurrence: LessonRecurrence {
+        get {
+            LessonRecurrence(
+                rawValue: recurrenceRawValue
+            ) ?? .none
+        }
+
+        set {
+            recurrenceRawValue = newValue.rawValue
+        }
+    }
+    
     // creates a lesson with all information required for scheduling and linking it to a student and teacher
     init(
             id: UUID,
@@ -33,7 +53,9 @@ final class Lesson: Identifiable {
             studentID: UUID,
             teacherID: UUID,
             notes: String,
-            location: String
+            location: String,
+            recurrence: LessonRecurrence = .none,
+            recurrenceEndDate: Date? = nil
         ) {
 
             self.id = id
@@ -44,5 +66,10 @@ final class Lesson: Identifiable {
             self.teacherID = teacherID
             self.notes = notes
             self.location = location
+            self.recurrenceRawValue =
+                recurrence.rawValue
+
+            self.recurrenceEndDate =
+                recurrenceEndDate
         }
 }

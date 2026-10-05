@@ -128,6 +128,14 @@ struct SyncTeacherLessonsUseCase {
 
                 existingLesson.location =
                     cloudLesson.location
+                
+                existingLesson.recurrence =
+                    LessonRecurrence(
+                        rawValue: cloudLesson.recurrenceType
+                    ) ?? .none
+
+                existingLesson.recurrenceEndDate =
+                    cloudLesson.recurrenceEndDate
 
                 localLessonRepository.updateLesson(
                     existingLesson
@@ -150,7 +158,14 @@ struct SyncTeacherLessonsUseCase {
                         notes:
                             cloudLesson.notes,
                         location:
-                            cloudLesson.location
+                            cloudLesson.location,
+                        recurrence:
+                            LessonRecurrence(
+                                rawValue:
+                                    cloudLesson.recurrenceType
+                            ) ?? .none,
+                        recurrenceEndDate:
+                            cloudLesson.recurrenceEndDate
                     )
 
                 localLessonRepository.addLesson(

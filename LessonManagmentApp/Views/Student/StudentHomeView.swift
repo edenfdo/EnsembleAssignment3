@@ -45,34 +45,37 @@ struct StudentHomeView: View {
                         .fontWeight(.bold)
                     
                     
-                    if let lesson = viewModel.upcomingLesson {
-                        
+                    if let lesson = viewModel.upcomingLesson,
+                       let occurrenceDate = viewModel.upcomingLessonDate {
+
                         VStack(
                             alignment: .leading,
                             spacing: 8
                         ) {
-                            
+
                             Text("Upcoming Lesson")
                                 .font(.headline)
-                            
+
                             Text(lesson.title)
                                 .font(.title3)
                                 .fontWeight(.semibold)
-                            
+
                             Text(
-                                lesson.date,
+                                occurrenceDate,
                                 style: .date
                             )
                             .foregroundStyle(.secondary)
-                            
+
                             Text(
-                                lesson.date,
+                                occurrenceDate,
                                 style: .time
                             )
                             .foregroundStyle(.secondary)
-                            
+
                             Text(lesson.location)
                                 .foregroundStyle(.secondary)
+
+                            // keep everything else exactly the same
                             
                             HStack {
                                 
