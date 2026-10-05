@@ -81,16 +81,19 @@ struct ChangePasswordView: View {
                             : "Current password",
                         text: $currentPassword
                     )
+                    .textContentType(.password)
 
                     SecureField(
                         "New password",
                         text: $newPassword
                     )
+                    .textContentType(.newPassword)
 
                     SecureField(
                         "Confirm new password",
                         text: $confirmPassword
                     )
+                    .textContentType(.newPassword)
                 }
 
                 if !viewModel.errorMessage.isEmpty {

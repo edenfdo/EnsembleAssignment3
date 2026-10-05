@@ -37,14 +37,17 @@ struct LoginView: View {
                     text: $viewModel.email
                 )
                 .textFieldStyle(.roundedBorder)
+                .textContentType(.username)
                 .textInputAutocapitalization(.never)
                 .keyboardType(.emailAddress)
+                .autocorrectionDisabled()
 
                 SecureField(
                     "Password",
                     text: $viewModel.password
                 )
                 .textFieldStyle(.roundedBorder)
+                .textContentType(.password)
                 .submitLabel(.go)
                 .onSubmit {
                     login()
