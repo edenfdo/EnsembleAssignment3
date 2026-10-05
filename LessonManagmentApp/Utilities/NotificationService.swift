@@ -42,6 +42,7 @@ enum NotificationService {
         dueDate: Date,
         lessonTitle: String
     ) {
+        print("🔔 SCHEDULING PRACTICE NOTIFICATION: \(title)")
 
         let content =
             UNMutableNotificationContent()

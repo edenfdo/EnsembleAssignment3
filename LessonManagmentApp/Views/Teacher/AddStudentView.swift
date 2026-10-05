@@ -17,6 +17,7 @@ struct AddStudentView: View {
     @State private var showAccountCreatedAlert = false
 
     @State private var isCreating = false
+    @State private var passwordCopied = false
 
     @State private var temporaryPassword = ""
     @State private var createdStudentName = ""
@@ -144,31 +145,101 @@ struct AddStudentView: View {
         }
 
         // shown after Supabase successfully creates the account
-        .alert(
-            "Student Account Created",
+        .sheet(
             isPresented: $showAccountCreatedAlert
         ) {
 
-            Button("Copy Password & Done") {
+            VStack(
+                alignment: .leading,
+                spacing: 20
+            ) {
 
-                UIPasteboard.general.string =
-                    temporaryPassword
+                Text("Student Account Created")
+                    .font(.title2)
+                    .fontWeight(.bold)
 
-                dismiss()
+                Text(
+                    "\(createdStudentName)'s account has been created."
+                )
+                .foregroundStyle(.secondary)
+
+                VStack(
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+
+                    Text("Temporary Password")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    HStack {
+
+                        Text(temporaryPassword)
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .textSelection(.enabled)
+
+                        Spacer()
+
+                        Button {
+
+                            UIPasteboard.general.string =
+                                temporaryPassword
+
+                            passwordCopied = true
+
+                            Task {
+
+                                try? await Task.sleep(
+                                    for: .seconds(2)
+                                )
+
+                                passwordCopied = false
+                            }
+
+                        } label: {
+
+                            Image(
+                                systemName:
+                                    passwordCopied
+                                    ? "checkmark"
+                                    : "doc.on.doc"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding()
+                    .background(
+                        .gray.opacity(0.12)
+                    )
+                    .cornerRadius(12)
+                }
+
+                Text(
+                    "Copy this password and give it to the student. They will be asked to change it when they first log in."
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+                Button {
+
+                    dismiss()
+
+                } label: {
+
+                    Text("Done")
+                        .fontWeight(.semibold)
+                        .frame(
+                            maxWidth: .infinity
+                        )
+                }
+                .buttonStyle(.borderedProminent)
             }
-
-        } message: {
-
-            Text(
-                """
-                \(createdStudentName)'s account has been created.
-
-                Temporary password:
-                \(temporaryPassword)
-
-                Copy this password and give it to the student. They will be asked to change it when they first log in.
-                """
-            )
+            .padding()
+            .presentationDetents([
+                .medium
+            ])
+            .interactiveDismissDisabled()
         }
     }
 
@@ -178,6 +249,7 @@ struct AddStudentView: View {
     private func createStudent() async {
 
         isCreating = true
+        
 
         defer {
             isCreating = false
@@ -197,6 +269,9 @@ struct AddStudentView: View {
 
             temporaryPassword =
                 student.temporaryPassword
+            
+            passwordCopied = false
+
 
             showAccountCreatedAlert = true
 
