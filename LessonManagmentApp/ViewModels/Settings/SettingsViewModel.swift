@@ -86,7 +86,7 @@ final class SettingsViewModel: ObservableObject {
         } catch {
 
             errorMessage =
-                "Unable to change password."
+                "Your new password must be different from your current password."
 
             print(
                        "Failed to change password: \(error)"
