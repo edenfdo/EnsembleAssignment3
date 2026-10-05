@@ -315,5 +315,3 @@ Some cloud functionality requires the project's configured Supabase services.
 ## Author
 
 **Eden Fernando**
-
-Developed as an iOS application project using Swift, SwiftUI, SwiftData and Supabase.
