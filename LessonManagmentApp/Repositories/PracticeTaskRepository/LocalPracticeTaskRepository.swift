@@ -30,15 +30,26 @@ final class LocalPracticeTaskRepository: PracticeTaskRepository {
         }
     }
 
-    // returns only practice tasks assigned to the specified student
+    // queries SwiftData for practice tasks assigned to the specified student
     func getTasks(
         forStudentID studentID: UUID
     ) -> [PracticeTask] {
 
-        let allTasks = getAllTasks()
+        let selectedStudentID = studentID
 
-        return allTasks.filter {
-            $0.studentID == studentID
+        let descriptor = FetchDescriptor<PracticeTask>(
+            predicate: #Predicate<PracticeTask> { task in
+                task.studentID == selectedStudentID
+            }
+        )
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print(
+                "Failed to fetch student practice tasks: \(error)"
+            )
+            return []
         }
     }
     

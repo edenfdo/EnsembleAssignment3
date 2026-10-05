@@ -30,23 +30,55 @@ final class LocalLessonRepository: LessonRepository {
         }
     }
 
-    // returns only lessons assigned to the specified student
+    // queries SwiftData for lessons assigned to the specified student
     func getLessons(
         forStudentID studentID: UUID
     ) -> [Lesson] {
 
-        getAllLessons().filter {
-            $0.studentID == studentID
+        let selectedStudentID = studentID
+
+        let descriptor = FetchDescriptor<Lesson>(
+            predicate: #Predicate<Lesson> { lesson in
+                lesson.studentID == selectedStudentID
+            },
+            sortBy: [
+                SortDescriptor(\Lesson.date)
+            ]
+        )
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print(
+                "Failed to fetch student lessons: \(error)"
+            )
+            return []
         }
     }
 
-    // returns only lessons assigned to the specified teacher
+    // queries SwiftData for lessons assigned to the specified teacher
     func getLessons(
         forTeacherID teacherID: UUID
     ) -> [Lesson] {
 
-        getAllLessons().filter {
-            $0.teacherID == teacherID
+        let selectedTeacherID = teacherID
+
+        let descriptor = FetchDescriptor<Lesson>(
+            predicate: #Predicate<Lesson> { lesson in
+                lesson.teacherID == selectedTeacherID
+            },
+            sortBy: [
+                SortDescriptor(\Lesson.date)
+            ]
+        )
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print(
+                "Failed to fetch teacher lessons: \(error)"
+            )
+            return []
         }
     }
 
