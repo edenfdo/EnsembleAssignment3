@@ -185,23 +185,18 @@ final class TeacherCalendarViewModel: ObservableObject {
                 !existingLessonIDs.contains($0.id)
             }
         
-        print("DEBUG — Existing lessons: \(existingLessonIDs.count)")
-        print("DEBUG — Lessons after scheduling: \(lessons.count)")
-        print("DEBUG — New lessons found: \(newLessons.count)")
-        print("DEBUG — Student email: \(student.email)")
+      
 
         // saves each new lesson to Supabase
         do {
 
             for lesson in newLessons {
 
-                print("DEBUG — Attempting cloud save: \(lesson.title)")
-                    print("DEBUG — Lesson ID: \(lesson.id)")
+            
                 try await saveLessonToCloudUseCase.execute(
                     lesson: lesson,
                     studentEmail: student.email
                 )
-                print("DEBUG — Cloud save completed: \(lesson.title)")
                 
             }
 
