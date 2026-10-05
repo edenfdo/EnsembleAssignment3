@@ -30,6 +30,8 @@ struct ChangePasswordView: View {
     @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var confirmPassword = ""
+    
+    @State private var showSuccessAlert = false
 
     init(
         user: User,
@@ -125,15 +127,7 @@ struct ChangePasswordView: View {
                                 )
 
                             if success {
-
-                                if isForcedChange {
-
-                                    onPasswordChanged?()
-
-                                } else {
-
-                                    dismiss()
-                                }
+                                showSuccessAlert = true
                             }
                         }
 
@@ -181,6 +175,23 @@ struct ChangePasswordView: View {
                         }
                     }
                 }
+            }
+            .alert(
+                "Password Changed Successfully",
+                isPresented: $showSuccessAlert
+            ) {
+                Button("Continue") {
+
+                    if isForcedChange {
+                        onPasswordChanged?()
+                    } else {
+                        dismiss()
+                    }
+                }
+            } message: {
+                Text(
+                    "Your password has been updated successfully."
+                )
             }
         }
     }
