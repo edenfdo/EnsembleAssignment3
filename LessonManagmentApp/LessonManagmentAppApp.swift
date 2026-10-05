@@ -11,12 +11,6 @@ import SwiftData
 @main
 struct LessonManagmentAppApp: App {
 
-    // requests notification permission when the app launches
-    init() {
-        NotificationService
-           .requestPermission()
-   }
-    
     var body: some Scene {
 
         WindowGroup {

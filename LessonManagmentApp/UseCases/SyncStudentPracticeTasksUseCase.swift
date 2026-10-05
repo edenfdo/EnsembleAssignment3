@@ -51,6 +51,11 @@ struct SyncStudentPracticeTasksUseCase {
 
         let cloudTasks =
             try await cloudPracticeTaskRepository.getTasks()
+        
+        let studentCloudTasks =
+            cloudTasks.filter {
+                $0.studentID == localStudentID
+            }
 
         var localUsers =
             localUserRepository.getAllUsers()
@@ -62,13 +67,13 @@ struct SyncStudentPracticeTasksUseCase {
 
         let currentCloudIDs =
             Set(
-                cloudTasks.map {
+                studentCloudTasks.map {
                     $0.id
                 }
             )
 
         // adds new tasks and updates existing cloud tasks
-        for cloudTask in cloudTasks {
+        for cloudTask in studentCloudTasks {
 
             guard let cloudTeacher =
                 try await cloudUserRepository.getProfile(
@@ -172,6 +177,25 @@ struct SyncStudentPracticeTasksUseCase {
                     localTask
                 )
             }
+            
+            // schedules a reminder only on the assigned student's device
+            if
+                !cloudTask.isCompleted,
+                let dueDate = cloudTask.dueDate
+            {
+
+                NotificationService.schedulePracticeTaskDue(
+                    taskID: cloudTask.id,
+                    title: cloudTask.title,
+                    dueDate: dueDate
+                )
+
+            } else {
+
+                NotificationService.cancelPracticeTaskDue(
+                    taskID: cloudTask.id
+                )
+            }
         }
 
         // finds cloud tasks that have since been deleted
@@ -181,6 +205,10 @@ struct SyncStudentPracticeTasksUseCase {
             )
 
         for deletedID in deletedCloudIDs {
+
+            NotificationService.cancelPracticeTaskDue(
+                taskID: deletedID
+            )
 
             if let localTask =
                 localPracticeTaskRepository

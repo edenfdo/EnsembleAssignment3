@@ -5,6 +5,7 @@
 //  Created by Eden Fernando on 30/9/2026.
 //
 
+
 import Foundation
 import UserNotifications
 
@@ -12,37 +13,54 @@ import UserNotifications
 enum NotificationService {
 
     // requests permission to send notifications
-    static func requestPermission() {
+    static func requestPermission() async {
 
-        UNUserNotificationCenter.current()
-            .requestAuthorization(
-                options: [
-                    .alert,
-                    .sound,
-                    .badge
-                ]
-            ) { granted, error in
+        do {
 
-                if let error {
-                    print(
-                        "Notification permission error: \(error)"
+            let granted =
+                try await UNUserNotificationCenter.current()
+                    .requestAuthorization(
+                        options: [
+                            .alert,
+                            .sound,
+                            .badge
+                        ]
                     )
-                } else {
-                    print(
-                        "Notification permission granted: \(granted)"
-                    )
-                }
-            }
+
+            print(
+                "Notification permission granted: \(granted)"
+            )
+
+        } catch {
+
+            print(
+                "Notification permission error: \(error)"
+            )
+        }
     }
 
 
-    // schedules a reminder for an upcoming practice task due date
+    // creates a stable notification identifier for a practice task
+    private static func practiceTaskNotificationID(
+        taskID: UUID
+    ) -> String {
+
+        "practice-task-\(taskID.uuidString)"
+    }
+
+
+    // schedules a reminder one hour before a practice task is due
     static func schedulePracticeTaskDue(
+        taskID: UUID,
         title: String,
-        dueDate: Date,
-        lessonTitle: String
+        dueDate: Date
     ) {
-        print("🔔 SCHEDULING PRACTICE NOTIFICATION: \(title)")
+
+
+        let identifier =
+            practiceTaskNotificationID(
+                taskID: taskID
+            )
 
         let content =
             UNMutableNotificationContent()
@@ -51,7 +69,7 @@ enum NotificationService {
             "Practice Due Soon"
 
         content.body =
-            "\(title) is due soon."
+            "\(title) is due in one hour."
 
         content.sound =
             .default
@@ -60,50 +78,48 @@ enum NotificationService {
             "PRACTICE_TASK_DUE"
 
         content.userInfo = [
+            "taskID": taskID.uuidString,
             "taskTitle": title,
-            "lessonTitle": lessonTitle,
             "dueDate": dueDate.timeIntervalSince1970
         ]
 
         // sends the reminder one hour before the task is due
-//        let reminderDate =
-//            dueDate.addingTimeInterval(
-//                -60 * 60
-//            )
+        let reminderDate =
+            dueDate.addingTimeInterval(
+                -60 * 60
+            )
 
-//        guard reminderDate > Date() else {
-//            return
-//        }
-//
-//        let dateComponents =
-//            Calendar.current.dateComponents(
-//                [
-//                    .year,
-//                    .month,
-//                    .day,
-//                    .hour,
-//                    .minute
-//                ],
-//                from: reminderDate
-//            )
-//
-//        let trigger =
-//            UNCalendarNotificationTrigger(
-//                dateMatching: dateComponents,
-//                repeats: false
-//            )
+        // does not schedule a reminder if the reminder time has already passed
+        guard reminderDate > Date() else {
 
-        
-        // sends the notification after 10 seconds for testing
+            cancelPracticeTaskDue(
+                taskID: taskID
+            )
+
+            return
+        }
+
+        let dateComponents =
+            Calendar.current.dateComponents(
+                [
+                    .year,
+                    .month,
+                    .day,
+                    .hour,
+                    .minute
+                ],
+                from: reminderDate
+            )
+
         let trigger =
-            UNTimeIntervalNotificationTrigger(
-                timeInterval: 10,
+            UNCalendarNotificationTrigger(
+                dateMatching: dateComponents,
                 repeats: false
             )
-        
+
         let request =
             UNNotificationRequest(
-                identifier: UUID().uuidString,
+                identifier: identifier,
                 content: content,
                 trigger: trigger
             )
@@ -112,10 +128,36 @@ enum NotificationService {
             .add(request) { error in
 
                 if let error {
+
                     print(
                         "Failed to schedule practice notification: \(error)"
                     )
+
+                } else {
+
+                    print(
+                        "Scheduled practice reminder: \(title)"
+                    )
                 }
             }
+    }
+
+
+    // removes the pending reminder for a practice task
+    static func cancelPracticeTaskDue(
+        taskID: UUID
+    ) {
+
+        let identifier =
+            practiceTaskNotificationID(
+                taskID: taskID
+            )
+
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(
+                withIdentifiers: [
+                    identifier
+                ]
+            )
     }
 }

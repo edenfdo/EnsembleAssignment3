@@ -110,6 +110,21 @@ class PracticeViewModel: ObservableObject {
 
         let newCompletionStatus =
             task.isCompleted
+        
+        if newCompletionStatus {
+
+            NotificationService.cancelPracticeTaskDue(
+                taskID: task.id
+            )
+
+        } else if let dueDate = task.dueDate {
+
+            NotificationService.schedulePracticeTaskDue(
+                taskID: task.id,
+                title: task.title,
+                dueDate: dueDate
+            )
+        }
 
         Task {
             do {

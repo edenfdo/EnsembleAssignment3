@@ -176,6 +176,8 @@ struct StudentRootView: View {
         }
         .task {
 
+            await NotificationService.requestPermission()
+
             await refreshAllStudentData()
 
             isInitialSyncing = false

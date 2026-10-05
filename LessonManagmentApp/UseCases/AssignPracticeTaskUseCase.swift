@@ -90,14 +90,6 @@ struct AssignPracticeTaskUseCase {
             task
         )
 
-        // schedules a reminder when the task has a due date
-        if let dueDate = dueDate {
-
-            NotificationService.schedulePracticeTaskDue(
-                title: cleanedTitle,
-                dueDate: dueDate,
-                lessonTitle: lesson.title
-            )
-        }
+        
     }
 }
