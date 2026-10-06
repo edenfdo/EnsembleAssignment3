@@ -1,317 +1,158 @@
-# Ensemble — Music Lesson Management App
+# Ensemble
 
-Ensemble is an iOS music lesson management application designed to help music teachers and students manage lessons, practice tasks, resources and progress in one centralised place.
-
-The application provides separate teacher and student experiences, allowing teachers to organise lesson-related information while giving students easy access to their upcoming lessons and assigned work.
+Ensemble is an iOS music lesson management application designed to connect music lessons with students’ independent practice. It allows teachers to manage lessons, practice tasks and learning resources while giving students a central place to access their assigned work and lesson information.
 
 ## Features
 
 ### Teacher
 
-- Create and manage student accounts
-- Schedule lessons for students
-- Schedule one-off or weekly recurring lessons
-- Detect scheduling conflicts between lessons
-- View upcoming lessons through the teacher calendar
-- Assign practice tasks linked to lessons
-- Manage lesson resources
-- View individual student information
+- Create and manage student accounts.
+- Schedule, edit and delete lessons.
+- Create recurring weekly lessons.
+- Assign practice tasks to students.
+- Upload and share learning resources.
+- View student task completion.
+- Access upcoming lesson information through a Home Screen widget.
 
 ### Student
 
-- Sign in using an account created by their teacher
-- Change the temporary password on first login
-- View upcoming lessons
-- View teacher information associated with lessons
-- View and complete assigned practice tasks
-- Access lesson resources
-- Receive reminders for upcoming practice-task deadlines
-
-## Technologies
-
-The application is built using:
-
-- Swift
-- SwiftUI
-- SwiftData
-- Supabase
-- WidgetKit
-- UserNotifications
-- Notification Content Extension
-- Lottie
-
-SwiftData is used for local application data, while Supabase provides cloud data synchronisation and authentication between teacher and student accounts.
+- View upcoming lessons and lesson information.
+- View and complete assigned practice tasks.
+- Access learning resources shared by their teacher.
+- Complete quizzes.
+- Receive reminders for upcoming practice-task deadlines.
+- View upcoming lesson information through a Home Screen widget.
 
 ## Architecture
 
-Ensemble separates the user interface, business rules and data-access logic using models, repositories, use cases and view models.
-
-The general application flow is:
+Ensemble uses a hybrid architecture combining local SwiftData persistence with Supabase for authentication, shared cloud data and resource storage. Repository protocols separate the domain layer from the underlying persistence implementation, while use cases contain application-specific business rules.
 
 ```text
-SwiftUI Views
-      ↓
-ViewModels
-      ↓
-Use Cases
-      ↓
-Repository Protocols
-      ↓
-Local / Supabase Repositories
-      ↓
-SwiftData / Supabase
+┌──────────────────────┐
+│     SwiftUI Views    │
+│ Teacher / Student UI │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      ViewModels      │
+│ UI state + actions   │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      Use Cases       │
+│   Business rules     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Repository Protocols │
+└──────────┬───────────┘
+           │
+      ┌────┴────┐
+      ▼         ▼
+┌───────────┐  ┌─────────────┐
+│ SwiftData │  │  Supabase   │
+│   Local   │  │ Cloud/Auth  │
+└───────────┘  └─────────────┘
 ```
 
-Repository protocols allow the application's data source to be replaced without changing the domain logic.
-
-For example, production code can use:
-
-```text
-ScheduleLessonUseCase
-        ↓
-LessonRepository
-        ↓
-LocalLessonRepository
-        ↓
-SwiftData
-```
-
-while unit tests can use:
-
-```text
-ScheduleLessonUseCase
-        ↓
-LessonRepository
-        ↓
-MockLessonRepository
-        ↓
-In-memory test data
-```
+SwiftData maintains local copies of application data used by the interface, while Supabase enables data to be shared and synchronised between teacher and student accounts on separate devices. Supabase Edge Functions are used for operations requiring privileged server-side functionality, such as student account creation.
 
 ## Domain Use Cases
 
-Business rules are separated into dedicated Use Case structures.
+| Use Case | Responsibility |
+| --- | --- |
+| `ScheduleLessonUseCase` | Schedules a lesson while validating its title, duration and potential scheduling conflicts. |
+| `AssignPracticeTaskUseCase` | Creates a practice task for an existing lesson and ensures its due date occurs after the lesson. |
+| `AddStudentUseCase` | Validates student details, including required names, email format and duplicate email addresses, before account creation. |
+| `SaveLessonToCloudUseCase` | Converts a locally created lesson into its cloud representation and saves it for the relevant teacher and student. |
+| `ChangePasswordUseCase` | Handles the required student password change while validating and updating the authenticated account. |
 
-Examples include:
-
-### ScheduleLessonUseCase
-
-Handles lesson scheduling and validates:
-
-- A lesson has a title
-- Lesson duration is valid
-- A teacher does not have conflicting lessons
-- Lessons can begin exactly when another lesson ends
-- Recurring weekly lesson conflicts are detected
-
-### AssignPracticeTaskUseCase
-
-Handles practice-task assignment and validates:
-
-- A task has a title
-- The linked lesson exists
-- The task due date occurs after the linked lesson
-
-### AddStudentUseCase
-
-Validates student information before an account is created, including:
-
-- Student name
-- Email format
-- Duplicate email addresses
-
-Domain-specific errors are used so validation failures can be presented to users with meaningful messages.
-
-## Data Persistence
-
-The application uses a combination of SwiftData and Supabase.
-
-### SwiftData
-
-SwiftData provides the local data layer used by the application's repository implementations.
-
-Core domain models include:
-
-- User
-- Lesson
-- PracticeTask
-- Resource
-
-Relationships between these models allow lessons, practice tasks and resources to be associated with the appropriate teacher and student.
-
-### Supabase
-
-Supabase is used for:
-
-- Authentication
-- Teacher and student accounts
-- Cloud data storage
-- Synchronisation between teacher and student devices
-- Edge Functions for secure account operations
-
-When a teacher creates a student account, a temporary password is generated. The student is required to replace this password after their first login.
-
-## Repository Pattern
-
-Data access is abstracted using repository protocols, including:
-
-- LessonRepository
-- PracticeTaskRepository
-- UserRepository
-- ResourceRepository
-
-Production implementations provide access to the application's persisted data.
-
-For unit testing, these repositories can be replaced with:
-
-- MockLessonRepository
-- MockPracticeTaskRepository
-- MockUserRepository
-- MockResourceRepository
-
-This allows business logic to be tested independently of the real persistence stack.
+Domain-specific errors are used to communicate validation failures back to the interface in a human-readable form.
 
 ## System Extensions
 
-The application implements two iOS system extensions.
+| Extension | Purpose |
+| --- | --- |
+| **WidgetKit Extension** | Displays upcoming lesson information directly on the Home Screen. The widget adapts to the logged-in account, displaying student information for teachers and teacher information for students, and supports both small and medium widget families. |
+| **Notification Content Extension** | Provides a customised expanded interface for practice-task reminders. Students receive a reminder before an incomplete task is due and can expand the notification to view additional task information. |
 
-### WidgetKit Widget Extension
-
-The Ensemble widget displays upcoming lesson information without requiring the user to open the main application.
-
-The widget:
-
-- Reads shared lesson information using an App Group shared container
-- Displays upcoming lesson information
-- Supports teacher and student contexts
-- Supports `.systemSmall`
-- Supports `.systemMedium`
-- Refreshes when relevant lesson data changes
-
-### Notification Content Extension
-
-A Notification Content Extension provides a custom expanded interface for practice-task reminders.
-
-When an eligible practice task approaches its due date, the student receives a local notification. Pressing and holding the notification displays the custom notification interface containing additional task information.
-
-The extension uses the `PRACTICE_TASK_DUE` notification category to identify supported notifications.
-
-## Unit Testing
-
-Unit tests are implemented using Swift Testing.
-
-The test suite uses mock repository implementations rather than the application's real persistence stack.
-
-The current suite contains 9 unit tests covering:
-
-- Successful lesson scheduling
-- Lesson scheduling conflicts
-- Lesson scheduling boundary conditions
-- Successful practice-task assignment
-- Invalid practice-task due dates
-- Practice-task due-date boundary conditions
-- Invalid student email validation
-- Duplicate student email validation
-- Repository filtering behaviour
-
-The tests cover successful operations, domain errors and boundary conditions.
-
-Tests can be run in Xcode using:
-
-```text
-⌘U
-```
+The WidgetKit extension receives lesson information through a shared App Group container, allowing the main application and widget extension to access the required shared data.
 
 ## Project Structure
 
 ```text
-LessonManagmentApp
+LessonManagmentApp/
 │
-├── Models
-├── Repositories
-├── UseCases
-├── ViewModels
-├── Views
-├── Services
-├── Animation
+├── Models/
+│   ├── User
+│   ├── Lesson
+│   ├── PracticeTask
+│   └── Resource
 │
-├── LessonManagmentAppTests
-│   ├── LessonManagmentAppTests.swift
-│   └── MockRepositories.swift
+├── Views/
+│   ├── Authentication
+│   ├── Teacher
+│   ├── Student
+│   ├── Lessons
+│   ├── Practice Tasks
+│   └── Resources
 │
-├── LessonWidgetExtension
+├── ViewModels/
+│   ├── RootViewModel
+│   ├── LoginViewModel
+│   ├── TeacherCalendarViewModel
+│   └── Student / Teacher ViewModels
 │
-└── PracticeNotificationExtension
+├── UseCases/
+│   ├── ScheduleLessonUseCase
+│   ├── AssignPracticeTaskUseCase
+│   ├── AddStudentUseCase
+│   ├── SaveLessonToCloudUseCase
+│   └── ChangePasswordUseCase
+│
+├── Repositories/
+│   ├── Repository Protocols
+│   ├── Local SwiftData Repositories
+│   └── Supabase Repositories
+│
+├── Services/
+│   ├── SupabaseService
+│   └── NotificationService
+│
+├── Widget Extension/
+│   └── Upcoming Lesson Widget
+│
+├── Notification Content Extension/
+│   └── Custom Practice Task Notification
+│
+└── LessonManagmentAppTests/
+    ├── Use Case Tests
+    └── MockRepositories
 ```
-
-The exact grouping of source files may vary, but responsibilities are separated between domain models, persistence, business logic and user-interface components.
-
-## Authentication Flow
-
-Student accounts are created by teachers.
-
-The account flow is:
-
-```text
-Teacher creates student
-        ↓
-Supabase Auth account is created
-        ↓
-Temporary password is generated
-        ↓
-Student signs in
-        ↓
-Password change is required
-        ↓
-Student chooses a new password
-        ↓
-Normal student experience is displayed
-```
-
-Sensitive account operations are handled through Supabase authentication and Edge Functions rather than directly from the client.
-
-## Recurring Lessons
-
-Lessons can be scheduled as either:
-
-- One-off lessons
-- Weekly recurring lessons
-
-A recurring lesson is stored as a single lesson containing its recurrence information rather than creating a separate stored record for every occurrence.
-
-The application generates the required occurrence dates when displaying or checking recurring lessons.
-
-Scheduling conflict detection also considers recurring lesson occurrences.
-
-## Notifications
-
-Students can receive local reminders for incomplete practice tasks with upcoming due dates.
-
-Notifications use stable task identifiers so existing pending notifications can be updated or cancelled when required.
-
-Completed or removed tasks should not continue to generate pending reminders.
 
 ## Requirements
 
-To run the project:
-
-- macOS with Xcode
-- An iOS Simulator or compatible iOS device
-- Swift Package dependencies used by the project
-- Access to the configured Supabase backend for cloud functionality
+- macOS
+- Xcode
+- iOS Simulator or compatible iOS device
 
 ## Running the Project
 
-1. Clone the repository.
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   ```
+
 2. Open `LessonManagmentApp.xcodeproj` in Xcode.
-3. Allow Swift Package dependencies to resolve.
-4. Select the `LessonManagmentApp` scheme.
-5. Select an iOS Simulator or connected device.
-6. Build and run the application using `⌘R`.
-7. Run the unit test suite using `⌘U`.
 
-Some cloud functionality requires the project's configured Supabase services.
+3. Select the **LessonManagmentApp** scheme.
 
-## Author
+4. Select an iOS Simulator or connected iOS device.
 
-**Eden Fernando**
+5. Build and run the application using **⌘R**.
+
+6. Run the unit tests using **⌘U**.
